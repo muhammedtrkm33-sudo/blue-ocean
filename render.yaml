@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: blue-ocean
+    runtime: static
+    buildCommand: mkdir -p dist && cp index.html styles.css impact.css refresh.css app.js config.js dist/
+    staticPublishPath: ./dist

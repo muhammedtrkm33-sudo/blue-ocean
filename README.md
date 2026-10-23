@@ -7,9 +7,18 @@ Türkçe ve İngilizce bir deniz araştırma ve keşif arayüzü. HTML, CSS ve t
 ## Başlatma
 
 1. Bu depoyu GitHub'a yükleyin veya bilgisayarınıza klonlayın.
-2. `index.html` dosyasını modern bir tarayıcıda açın. En iyi deneyim ve API istekleri için bir yerel web sunucusu veya Vercel dağıtımı kullanın.
+2. `index.html` dosyasını modern bir tarayıcıda açın. En iyi deneyim ve API istekleri için yerel web sunucusu veya Render/Vercel dağıtımı kullanın.
 3. Harita, Esri'nin okyanus altlığını ilk sırada kullanır; Esri erişilemezse OpenStreetMap verisini kullanan CARTO koyu altlığına geçer. İki sağlayıcı da kullanılamazsa bölge listesi çalışmaya devam eder ve kırık kutucuklar gösterilmez.
 4. Saatlik deniz tahminleri Open-Meteo Marine API'den yüklenir. Kaynak kullanılamadığında uydurma canlı veri gösterilmez.
+
+### Render ile dağıtım
+
+1. Deponuzu GitHub'a gönderin.
+2. Render Dashboard'da **New → Blueprint** seçip GitHub deponuzu bağlayın.
+3. Render, kökteki `render.yaml` dosyasını okuyarak `blue-ocean` adlı statik siteyi kurar. **Apply** ile dağıtımı başlatın.
+4. Dağıtım tamamlanınca Render'ın verdiği `onrender.com` adresinden siteyi açın. `render.yaml`, gereken HTML, CSS ve JavaScript dosyalarını `dist` klasörüne hazırlar; ayrıca derleme aracı veya ortam değişkeni gerekmez.
+
+Render'daki bu statik dağıtım haritayı, deniz tahminlerini ve site içeriğini sunar. Statik site `api/research.js` sunucu işlevini çalıştırmadığından Claude araştırma yanıtları kullanılamaz; asistan, kaynak rehberi yanıtlarını sunmaya devam eder. Claude özelliği için bu API'yi çalıştıran Vercel dağıtımını kullanın.
 
 ### Vercel ile dağıtım ve Claude araştırma asistanı
 
