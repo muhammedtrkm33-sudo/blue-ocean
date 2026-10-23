@@ -58,7 +58,7 @@
       lifeEyebrow: "LIFE IN COMMON", lifeTitle: "Life in <span>blue.</span>", lifeCopy: "Every species plays a role in the marine ecosystem. Conservation status can vary by species and population; check the IUCN record for details.", iucnButton: "IUCN Red List ↗",
       topicsEyebrow: "UNDERSTAND THE OCEAN", topicsTitle: "Go deeper. <span>Make a difference.</span>", topicsIntro: "Learn about major environmental issues, continue with trusted sources and discover everyday actions.", actionEyebrow: "WE CAN MAKE A DIFFERENCE TOGETHER", actionTitle: "One small step.<br><span>A bluer future.</span>", actionCopy: "Reduce single-use plastic, join a local cleanup and share what you learn about marine life.", actionButton: "Take action today",
       footerSlogan: "UNDERSTAND THE SEA. PROTECT OUR FUTURE.", footerCopy: "Inspired by science. Working for our seas.", footerRights: "· Sources belong to their respective owners.",
-      assistantEyebrow: "OCEAN RESEARCH GUIDE", assistantTitle: "Ask a question.<br><span>Explore the evidence.</span>", assistantCopy: "Sea-temperature and wave questions use Open-Meteo model forecasts when available. Other research questions use Claude when the protected server API is configured, or the clearly labelled source guide.", assistantLabel: "What would you like to know about the sea?", assistantPlaceholder: "E.g. What are the main environmental pressures on the Sea of Marmara?", assistantAsk: "Explore", accountEyebrow: "PERSONAL RESEARCH SPACE", accountTitle: "Save what you <span>discover.</span>", accountCopy: "Without Supabase, you can create a profile saved only in this browser. It will not sync to other devices and is not a Claude login.", emailLabel: "Email", passwordLabel: "Password", passwordHint: "(8–128 characters)", signIn: "Sign in", signUp: "Create account", signOut: "Sign out"
+      assistantEyebrow: "OCEAN RESEARCH GUIDE", assistantTitle: "Ask a question.<br><span>Explore the evidence.</span>", assistantCopy: "Sea-temperature and wave questions use Open-Meteo model forecasts when available. Other research questions use Claude when the protected server API is configured, or the clearly labelled source guide.", assistantLabel: "What would you like to know about the sea?", assistantPlaceholder: "E.g. What are the main environmental pressures on the Sea of Marmara?", assistantAsk: "Explore", accountEyebrow: "PERSONAL RESEARCH SPACE", accountTitle: "Save what you <span>discover.</span>", accountCopy: "With Supabase configured, a verification code is sent to your email. Email verification is unavailable until the project is configured.", emailLabel: "Email", passwordLabel: "Password", passwordHint: "(8–128 characters)", signIn: "Sign in", signUp: "Create account", signOut: "Sign out", verificationCodeLabel: "Email verification code", verificationCodeHint: "Enter the 6-digit code sent to your email.", verifyEmail: "Verify email", resendCode: "Resend code", changeEmail: "Change email", accountSections: "Explore the site", drawerTitle: "Explore BLUE OCEAN", drawerCopy: "Choose a section to continue exploring."
     }
   };
   Object.assign(translations.en, {
@@ -71,6 +71,7 @@
     impactFootnote: "Note: These published figures use different definitions, geographic scopes and years. Selecting a sea on the map does not turn them into local measurements; this page does not provide live pollution-sensor data."
   });
   let language = localStorage.getItem("bo-language") === "en" ? "en" : "tr";
+  let pendingVerificationEmail = "";
   let selectedRegion = regions[0];
   let liveData = null;
   let map = null;
@@ -491,29 +492,208 @@
     if (!$("#account-form").reportValidity()) return;
     if (password.length < 8 || password.length > 128) { message.textContent = language === "tr" ? "Parola 8–128 karakter arasında olmalıdır." : "Password must be 8–128 characters."; return; }
     if (!authConfigReady()) {
-      const normalizedEmail = email.toLocaleLowerCase("en-US");
-      if (localAccounts().some(item => item.email === normalizedEmail)) {
-        message.textContent = language === "tr" ? "Bu e-postayla bu tarayıcıda zaten bir yerel profil var. Giriş yapmayı dene." : "A local profile for this email already exists in this browser. Try signing in.";
-        return;
-      }
-      message.textContent = language === "tr" ? "Bu cihazda profil oluşturuluyor…" : "Creating a local profile…";
-      try {
-        const salt = Array.from(crypto.getRandomValues(new Uint8Array(16)), byte => byte.toString(16).padStart(2, "0")).join("");
-        const passwordHash = await deriveLocalPasswordHash(password, salt);
-        const accounts = localAccounts();
-        accounts.push({ email: normalizedEmail, salt, passwordHash, createdAt: new Date().toISOString() });
-        localStorage.setItem("bo-local-accounts-v1", JSON.stringify(accounts));
-        saveLocalSession(normalizedEmail);
-        message.textContent = localAccountNotice();
-      } catch (error) {
-        console.error("Local account creation failed:", error.name || "local_signup_error");
-        message.textContent = error.message;
-      }
+      message.textContent = language === "tr"
+        ? "E-posta doğrulamalı kayıt için Supabase ayarlarını config.js dosyasına ekleyin. Ayarlar yokken yeni hesap oluşturulamaz."
+        : "Configure Supabase in config.js to enable email-verified signup. New accounts cannot be created until it is configured.";
       return;
     }
     message.textContent = language === "tr" ? "Hesap oluşturuluyor…" : "Creating account…";
-    try { const result = await supabaseRequest("signup", { method: "POST", body: JSON.stringify({ email, password }) }); if (result.access_token) { saveSession(result); loadLocalAccountLibrary(); updateAccountUI(); await loadCloudLibrary(); } message.textContent = result.access_token ? (language === "tr" ? "Hesabın oluşturuldu." : "Your account has been created.") : (language === "tr" ? "E-postana doğrulama bağlantısı gönderildi." : "Check your email for a verification link."); }
+    try {
+      const result = await supabaseRequest("signup", { method: "POST", body: JSON.stringify({ email, password }) });
+      if (result.access_token) {
+        if (!result.user?.email_confirmed_at && !result.user?.confirmed_at) {
+          localStorage.removeItem("bo-session");
+          message.textContent = language === "tr"
+            ? "E-posta doğrulaması kapalı görünüyor. Supabase Authentication ayarlarında Confirm email seçeneğini açıp 6 haneli kod şablonunu ayarla."
+            : "Email confirmation appears to be disabled. Enable Confirm email in Supabase Authentication and configure the 6-digit code template.";
+          return;
+        }
+        saveSession(result); loadLocalAccountLibrary(); updateAccountUI(); await loadCloudLibrary();
+        message.textContent = language === "tr" ? "Hesabın oluşturuldu ve e-postan doğrulandı." : "Your account is created and your email is verified.";
+        return;
+      }
+      if (!result.user?.id) throw new Error(language === "tr" ? "Hesap oluşturulamadı. E-posta adresini kontrol edip yeniden dene." : "The account could not be created. Check the email address and try again.");
+      pendingVerificationEmail = email;
+      $("#account-form").hidden = true;
+      $("#account-verification").hidden = false;
+      $("#account-otp").value = "";
+      $("#account-otp").focus();
+      message.textContent = language === "tr" ? `${email} adresine 6 haneli doğrulama kodu gönderildi.` : `A 6-digit verification code was sent to ${email}.`;
+    }
     catch (error) { message.textContent = error.message; }
+  }
+  async function verifySignupEmail(event) {
+    event.preventDefault();
+    const form = $("#account-verification"), message = $("#account-message"), token = $("#account-otp").value.trim();
+    if (!form.reportValidity() || !pendingVerificationEmail) return;
+    if (!/^\d{6}$/.test(token)) {
+      message.textContent = language === "tr" ? "Doğrulama kodu 6 rakamdan oluşmalıdır." : "The verification code must contain 6 digits.";
+      return;
+    }
+    message.textContent = language === "tr" ? "E-posta doğrulanıyor…" : "Verifying email…";
+    try {
+      const session = await supabaseRequest("verify", { method: "POST", body: JSON.stringify({ type: "signup", email: pendingVerificationEmail, token }) });
+      if (!session.access_token) throw new Error(language === "tr" ? "Kod doğrulandı ancak oturum açılamadı. Giriş yapmayı dene." : "The code was verified, but a session could not be started. Try signing in.");
+      pendingVerificationEmail = "";
+      form.hidden = true;
+      form.reset();
+      $("#account-form").hidden = false;
+      saveSession(session); loadLocalAccountLibrary(); updateAccountUI();
+      message.textContent = language === "tr" ? "E-posta doğrulandı. Hesabın açıldı." : "Email verified. You are signed in.";
+      await loadCloudLibrary();
+    } catch (error) { message.textContent = error.message; }
+  }
+  async function resendSignupCode() {
+    const message = $("#account-message");
+    if (!pendingVerificationEmail || !authConfigReady()) return;
+    message.textContent = language === "tr" ? "Yeni kod gönderiliyor…" : "Sending a new code…";
+    try {
+      await supabaseRequest("resend", { method: "POST", body: JSON.stringify({ type: "signup", email: pendingVerificationEmail }) });
+      message.textContent = language === "tr" ? "Yeni 6 haneli kod e-postana gönderildi." : "A new 6-digit code was sent to your email.";
+    } catch (error) { message.textContent = error.message; }
+  }
+  function changeSignupEmail() {
+    pendingVerificationEmail = "";
+    $("#account-verification").reset();
+    $("#account-verification").hidden = true;
+    $("#account-form").hidden = false;
+    $("#account-message").textContent = "";
+    $("#account-email").focus();
+  }
+  function setupAccountDrawer() {
+    const oldNav = $("#account-dialog .account-nav");
+    const trigger = document.createElement("button");
+    trigger.type = "button";
+    trigger.id = "account-explore-button";
+    trigger.className = "account-explore-trigger";
+    trigger.setAttribute("aria-haspopup", "dialog");
+    trigger.setAttribute("aria-controls", "site-explore-drawer");
+    trigger.setAttribute("aria-expanded", "false");
+    trigger.innerHTML = '<span data-i18n="accountSections">Siteyi keşfet</span><span class="account-explore-arrow" aria-hidden="true">↗</span>';
+    oldNav.replaceWith(trigger);
+
+    const backdrop = document.createElement("button");
+    backdrop.type = "button";
+    backdrop.className = "site-drawer-backdrop";
+    backdrop.setAttribute("aria-label", language === "tr" ? "Menüyü kapat" : "Close menu");
+    backdrop.tabIndex = -1;
+    backdrop.hidden = true;
+
+    const drawer = document.createElement("aside");
+    drawer.id = "site-explore-drawer";
+    drawer.className = "site-explore-drawer";
+    drawer.setAttribute("role", "dialog");
+    drawer.setAttribute("aria-modal", "true");
+    drawer.setAttribute("aria-labelledby", "site-explore-title");
+    drawer.setAttribute("aria-hidden", "true");
+    drawer.tabIndex = -1;
+
+    const header = document.createElement("div");
+    header.className = "site-drawer-header";
+    const heading = document.createElement("div");
+    const eyebrow = document.createElement("p");
+    eyebrow.className = "eyebrow";
+    eyebrow.textContent = language === "tr" ? "SİTE BÖLÜMLERİ" : "SITE SECTIONS";
+    const title = document.createElement("h2");
+    title.id = "site-explore-title";
+    title.dataset.i18n = "drawerTitle";
+    title.textContent = "BLUE OCEAN'ı keşfet";
+    const copy = document.createElement("p");
+    copy.className = "site-drawer-copy";
+    copy.dataset.i18n = "drawerCopy";
+    copy.textContent = "Keşfetmeye devam etmek için bir bölüm seç.";
+    heading.append(eyebrow, title, copy);
+
+    const closeButton = document.createElement("button");
+    closeButton.type = "button";
+    closeButton.className = "site-drawer-close";
+    closeButton.setAttribute("aria-label", language === "tr" ? "Menüyü kapat" : "Close menu");
+    closeButton.textContent = "×";
+    header.append(heading, closeButton);
+
+    const links = document.createElement("nav");
+    links.className = "site-drawer-links";
+    links.setAttribute("aria-label", language === "tr" ? "Site bölümleri" : "Site sections");
+    $$("#main-nav a").forEach((link, index) => {
+      const drawerLink = link.cloneNode(true);
+      drawerLink.dataset.drawerIndex = String(index + 1).padStart(2, "0");
+      links.append(drawerLink);
+    });
+    drawer.append(header, links);
+    document.body.append(backdrop, drawer);
+
+    let returnFocus = null;
+    let inertElements = [];
+    const closeDrawer = (restoreFocus = true) => {
+      drawer.classList.remove("is-open");
+      backdrop.classList.remove("is-open");
+      drawer.setAttribute("aria-hidden", "true");
+      backdrop.hidden = true;
+      document.body.classList.remove("site-drawer-open");
+      inertElements.forEach(element => { element.inert = false; });
+      inertElements = [];
+      trigger.setAttribute("aria-expanded", "false");
+      if (restoreFocus) (returnFocus?.isConnected ? returnFocus : $("#account-button")).focus();
+    };
+    const openDrawer = () => {
+      returnFocus = $("#account-button");
+      $("#account-dialog").close();
+      backdrop.hidden = false;
+      drawer.setAttribute("aria-hidden", "false");
+      document.body.classList.add("site-drawer-open");
+      inertElements = [...document.body.children].filter(element => element !== backdrop && element !== drawer);
+      inertElements.forEach(element => { element.inert = true; });
+      trigger.setAttribute("aria-expanded", "true");
+      requestAnimationFrame(() => {
+        drawer.classList.add("is-open");
+        backdrop.classList.add("is-open");
+        window.setTimeout(() => {
+          if (drawer.classList.contains("is-open")) drawer.focus();
+        }, 80);
+      });
+    };
+
+    trigger.addEventListener("click", openDrawer);
+    closeButton.addEventListener("click", () => closeDrawer());
+    backdrop.addEventListener("click", () => closeDrawer());
+    links.addEventListener("click", event => {
+      const link = event.target.closest("a");
+      if (!link) return;
+      closeDrawer(false);
+      const target = document.querySelector(link.getAttribute("href"));
+      if (target) {
+        if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+        requestAnimationFrame(() => target.focus({ preventScroll: true }));
+      }
+    });
+    drawer.addEventListener("keydown", event => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeDrawer();
+      } else if (event.key === "Tab") {
+        const focusable = $$("a, button", drawer).filter(item => !item.disabled);
+        const first = focusable[0], last = focusable[focusable.length - 1];
+        if (document.activeElement === drawer) {
+          event.preventDefault();
+          (event.shiftKey ? last : first).focus();
+        } else if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    });
+    $("#account-dialog").addEventListener("close", () => {
+      if (drawer.classList.contains("is-open")) closeDrawer(false);
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && drawer.classList.contains("is-open")) {
+        event.preventDefault();
+        closeDrawer();
+      }
+    });
   }
   function saveSession(data) { if (data.access_token) { data.expires_at = data.expires_at || Math.floor(Date.now() / 1000) + (data.expires_in || 3600); localStorage.setItem("bo-session", JSON.stringify(data)); } }
   async function signOut() {
@@ -524,6 +704,10 @@
     }
     localStorage.removeItem("bo-session");
     localStorage.removeItem("bo-local-session-v1");
+    pendingVerificationEmail = "";
+    $("#account-verification").reset();
+    $("#account-verification").hidden = true;
+    $("#account-form").hidden = false;
     saved = readJSON("bo-saved", { regions: [], topics: [] });
     updateAccountUI(); renderSavedCount(); updateRegionPanel();
     $("#account-message").textContent = language === "tr" ? "Çıkış yapıldı." : "Signed out.";
@@ -576,14 +760,14 @@
     $("#open-assistant").addEventListener("click", () => openAssistant());
     $$("[data-question]").forEach(button => button.addEventListener("click", () => openAssistant(button.dataset.question)));
     $("#account-button").addEventListener("click", () => { updateAccountUI(); $("#account-dialog").showModal(); });
-    $("#account-form").addEventListener("submit", handleSignIn); $("#sign-up-button").addEventListener("click", handleSignUp); $("#sign-out-button").addEventListener("click", signOut);
+    $("#account-form").addEventListener("submit", handleSignIn); $("#sign-up-button").addEventListener("click", handleSignUp); $("#account-verification").addEventListener("submit", verifySignupEmail); $("#resend-code").addEventListener("click", resendSignupCode); $("#change-email").addEventListener("click", changeSignupEmail); $("#account-otp").addEventListener("input", event => { event.currentTarget.value = event.currentTarget.value.replace(/\D/g, "").slice(0, 6); }); $("#sign-out-button").addEventListener("click", signOut);
     $$("[data-close-dialog]").forEach(button => button.addEventListener("click", () => button.closest("dialog").close()));
     $$("dialog").forEach(dialog => { dialog.addEventListener("click", event => { if (event.target === dialog) dialog.close(); }); });
     $("#detail-dialog").addEventListener("click", event => { const item = event.target.closest(".saved-item"); if (item) { $("#detail-dialog").close(); if (item.dataset.region) selectRegion(item.dataset.region); else if (item.dataset.regionDetail) { selectRegion(item.dataset.regionDetail); openRegionDetails(); } else if (item.dataset.species !== undefined) openSpecies(Number(item.dataset.species)); else if (item.dataset.topic) openTopic(item.dataset.topic); } });
   }
   function init() {
     if (currentAccount()) loadLocalAccountLibrary();
-    $("#year").textContent = new Date().getFullYear(); wireEvents(); renderRegions(); renderSpecies(); renderTopics(); updateRegionPanel(); renderSavedCount(); updateAccountUI();
+    $("#year").textContent = new Date().getFullYear(); setupAccountDrawer(); wireEvents(); renderRegions(); renderSpecies(); renderTopics(); updateRegionPanel(); renderSavedCount(); updateAccountUI();
     if (language === "en") setLanguage("en");
     initMap(); loadMarineData();
     if (config.supabaseUrl && config.supabaseAnonKey && currentSession()) loadCloudLibrary();
