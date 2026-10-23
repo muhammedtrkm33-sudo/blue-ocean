@@ -58,7 +58,7 @@
       lifeEyebrow: "LIFE IN COMMON", lifeTitle: "Life in <span>blue.</span>", lifeCopy: "Every species plays a role in the marine ecosystem. Conservation status can vary by species and population; check the IUCN record for details.", iucnButton: "IUCN Red List ↗",
       topicsEyebrow: "UNDERSTAND THE OCEAN", topicsTitle: "Go deeper. <span>Make a difference.</span>", topicsIntro: "Learn about major environmental issues, continue with trusted sources and discover everyday actions.", actionEyebrow: "WE CAN MAKE A DIFFERENCE TOGETHER", actionTitle: "One small step.<br><span>A bluer future.</span>", actionCopy: "Reduce single-use plastic, join a local cleanup and share what you learn about marine life.", actionButton: "Take action today",
       footerSlogan: "UNDERSTAND THE SEA. PROTECT OUR FUTURE.", footerCopy: "Inspired by science. Working for our seas.", footerRights: "· Sources belong to their respective owners.",
-      assistantEyebrow: "OCEAN RESEARCH GUIDE", assistantTitle: "Ask a question.<br><span>Explore the evidence.</span>", assistantCopy: "Sea-temperature and wave questions use Open-Meteo model forecasts when available. Other research questions use Claude when the protected server API is configured, or the clearly labelled source guide.", assistantLabel: "What would you like to know about the sea?", assistantPlaceholder: "E.g. What are the main environmental pressures on the Sea of Marmara?", assistantAsk: "Explore", accountEyebrow: "PERSONAL RESEARCH SPACE", accountTitle: "Save what you <span>discover.</span>", accountCopy: "With Supabase configured, a verification code is sent to your email. Email verification is unavailable until the project is configured.", emailLabel: "Email", passwordLabel: "Password", passwordHint: "(8–128 characters)", signIn: "Sign in", signUp: "Create account", signOut: "Sign out", verificationCodeLabel: "Email verification code", verificationCodeHint: "Enter the 6-digit code sent to your email.", verifyEmail: "Verify email", resendCode: "Resend code", changeEmail: "Change email", accountSections: "Explore the site", drawerTitle: "Explore BLUE OCEAN", drawerCopy: "Choose a section to continue exploring."
+      assistantEyebrow: "OCEAN RESEARCH GUIDE", assistantTitle: "Ask a question.<br><span>Explore the evidence.</span>", assistantCopy: "Sea-temperature and wave questions use Open-Meteo model forecasts when available. Other research questions use Claude when the protected server API is configured, or the clearly labelled source guide.", assistantLabel: "What would you like to know about the sea?", assistantPlaceholder: "E.g. What are the main environmental pressures on the Sea of Marmara?", assistantAsk: "Explore", accountEyebrow: "PERSONAL RESEARCH SPACE", accountTitle: "Save what you <span>discover.</span>", accountCopy: "With Supabase configured, a verification code is sent to your email. Email verification is unavailable until the project is configured.", emailLabel: "Email", passwordLabel: "Password", passwordHint: "(8–128 characters)", signIn: "Sign in", signUp: "Create account", signOut: "Sign out", verificationCodeLabel: "Email verification code", verificationCodeHint: "Enter the 6-digit code sent to your email.", verifyEmail: "Verify email", resendCode: "Resend code", changeEmail: "Change email", accountSections: "Explore the site", drawerTitle: "Explore BLUE OCEAN", drawerCopy: "Choose a section to continue exploring.", feedbackLinksTitle: "Make a difference", feedbackIdeas: "Share an idea or project", feedbackRequests: "Requests and complaints", feedbackDialogEyebrow: "YOUR VOICE FOR THE OCEAN", feedbackTitle: "Share what you have in mind.", feedbackIntro: "Share an idea, project, request or complaint about protecting our waters and seas.", feedbackTypeLabel: "What would you like to share?", feedbackIdeaOption: "Idea or project", feedbackRequestOption: "Request", feedbackComplaintOption: "Complaint", feedbackNameLabel: "Your name (optional)", feedbackNamed: "I would like to include my name", feedbackAnonymous: "I prefer not to share my name", feedbackFullNameLabel: "First and last name", feedbackMessageLabel: "Your idea, request or complaint", feedbackMessagePlaceholder: "Write your idea, project, request or complaint here…", feedbackPrivacy: "Please do not include passwords, financial details or other sensitive personal information.", feedbackSubmit: "Send", feedbackSending: "Sending…", feedbackSent: "Thank you. Your submission has been received.", feedbackMissingConfig: "Submissions are not connected yet. Please try again later.", feedbackError: "Your submission could not be sent. Please try again later."
     }
   };
   Object.assign(translations.en, {
@@ -85,7 +85,17 @@
   const userLibrary = readJSON("bo-library", { favorites: [], lists: [] });
   const $ = (selector, parent = document) => parent.querySelector(selector);
   const $$ = (selector, parent = document) => [...parent.querySelectorAll(selector)];
-  const text = (key) => language === "en" && translations.en[key] ? translations.en[key] : key;
+  const text = (key) => {
+    if (language === "en" && translations.en[key]) return translations.en[key];
+    const turkish = {
+      feedbackSubmit: "Gönder",
+      feedbackSending: "Gönderiliyor…",
+      feedbackSent: "Teşekkürler. Gönderin alındı.",
+      feedbackMissingConfig: "Gönderim sistemi henüz bağlı değil. Lütfen daha sonra tekrar dene.",
+      feedbackError: "Gönderin iletilemedi. Lütfen daha sonra tekrar dene."
+    };
+    return turkish[key] || key;
+  };
   const local = (value) => typeof value === "object" ? (value[language] || value.tr) : value;
   function readJSON(key, fallback) { try { const value = JSON.parse(localStorage.getItem(key)); return value && typeof value === "object" ? value : fallback; } catch { return fallback; } }
   function escapeHTML(value) { return String(value).replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]); }
@@ -560,6 +570,75 @@
     $("#account-message").textContent = "";
     $("#account-email").focus();
   }
+  function updateFeedbackNameField() {
+    const includeName = $("#feedback-named").checked;
+    $("#feedback-name-field").hidden = !includeName;
+    $("#feedback-name").required = includeName;
+  }
+  function openFeedback(type) {
+    const form = $("#feedback-form");
+    form.reset();
+    $("#feedback-type").value = ["idea", "request", "complaint"].includes(type) ? type : "request";
+    $("#feedback-anonymous").checked = true;
+    $("#feedback-message").textContent = "";
+    $("#feedback-submit").disabled = false;
+    updateFeedbackNameField();
+    $("#feedback-dialog").showModal();
+  }
+  async function submitFeedback(event) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    if (!form.reportValidity()) return;
+    if (form.elements.website.value) return;
+    if (!authConfigReady()) {
+      $("#feedback-message").textContent = text("feedbackMissingConfig");
+      return;
+    }
+    if ($("#feedback-named").checked && !$("#feedback-name").value.trim()) {
+      $("#feedback-message").textContent = language === "tr" ? "Adını paylaşmayı seçtiysen ad soyad alanını doldur." : "Enter your name if you chose to share it.";
+      $("#feedback-name").focus();
+      return;
+    }
+
+    const submitButton = $("#feedback-submit");
+    submitButton.disabled = true;
+    submitButton.textContent = text("feedbackSending");
+    $("#feedback-message").textContent = "";
+    const isAnonymous = $("#feedback-anonymous").checked;
+    const submission = {
+      category: $("#feedback-type").value,
+      is_anonymous: isAnonymous,
+      display_name: isAnonymous ? null : $("#feedback-name").value.trim(),
+      message: $("#feedback-text").value.trim()
+    };
+
+    try {
+      const response = await fetch(`${config.supabaseUrl.replace(/\/$/, "")}/rest/v1/community_submissions`, {
+        method: "POST",
+        headers: {
+          apikey: config.supabaseAnonKey,
+          "Content-Type": "application/json",
+          Prefer: "return=minimal"
+        },
+        body: JSON.stringify(submission)
+      });
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body.message || `Submission returned ${response.status}`);
+      }
+      form.reset();
+      $("#feedback-anonymous").checked = true;
+      updateFeedbackNameField();
+      $("#feedback-message").textContent = text("feedbackSent");
+      notify(text("feedbackSent"));
+    } catch (error) {
+      console.error("Community submission failed:", error);
+      $("#feedback-message").textContent = text("feedbackError");
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = text("feedbackSubmit");
+    }
+  }
   function setupAccountDrawer() {
     const oldNav = $("#account-dialog .account-nav");
     const trigger = document.createElement("button");
@@ -619,7 +698,24 @@
       drawerLink.dataset.drawerIndex = String(index + 1).padStart(2, "0");
       links.append(drawerLink);
     });
-    drawer.append(header, links);
+    const feedbackHeading = document.createElement("p");
+    feedbackHeading.className = "drawer-feedback-heading";
+    feedbackHeading.dataset.i18n = "feedbackLinksTitle";
+    feedbackHeading.textContent = language === "tr" ? "Denizler için söz sende" : "Make a difference";
+    const feedbackActions = document.createElement("div");
+    feedbackActions.className = "drawer-feedback-actions";
+    [
+      ["idea", "feedbackIdeas", "✳"],
+      ["request", "feedbackRequests", "↗"]
+    ].forEach(([type, key, icon]) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "drawer-feedback-link";
+      button.dataset.feedbackType = type;
+      button.innerHTML = `<span class="drawer-feedback-icon" aria-hidden="true">${icon}</span><span data-i18n="${key}">${language === "tr" ? (type === "idea" ? "Fikir veya proje paylaş" : "İstek ve şikayet bildir") : translations.en[key]}</span><span class="drawer-link-arrow" aria-hidden="true">↗</span>`;
+      feedbackActions.append(button);
+    });
+    drawer.append(header, links, feedbackHeading, feedbackActions);
     document.body.append(backdrop, drawer);
 
     let returnFocus = null;
@@ -665,6 +761,12 @@
         if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
         requestAnimationFrame(() => target.focus({ preventScroll: true }));
       }
+    });
+    feedbackActions.addEventListener("click", event => {
+      const button = event.target.closest("[data-feedback-type]");
+      if (!button) return;
+      closeDrawer(false);
+      openFeedback(button.dataset.feedbackType);
     });
     drawer.addEventListener("keydown", event => {
       if (event.key === "Escape") {
@@ -760,6 +862,8 @@
     $("#open-assistant").addEventListener("click", () => openAssistant());
     $$("[data-question]").forEach(button => button.addEventListener("click", () => openAssistant(button.dataset.question)));
     $("#account-button").addEventListener("click", () => { updateAccountUI(); $("#account-dialog").showModal(); });
+    $("#feedback-form").addEventListener("submit", submitFeedback);
+    $$('input[name="feedback-name-choice"]').forEach(input => input.addEventListener("change", updateFeedbackNameField));
     $("#account-form").addEventListener("submit", handleSignIn); $("#sign-up-button").addEventListener("click", handleSignUp); $("#account-verification").addEventListener("submit", verifySignupEmail); $("#resend-code").addEventListener("click", resendSignupCode); $("#change-email").addEventListener("click", changeSignupEmail); $("#account-otp").addEventListener("input", event => { event.currentTarget.value = event.currentTarget.value.replace(/\D/g, "").slice(0, 6); }); $("#sign-out-button").addEventListener("click", signOut);
     $$("[data-close-dialog]").forEach(button => button.addEventListener("click", () => button.closest("dialog").close()));
     $$("dialog").forEach(dialog => { dialog.addEventListener("click", event => { if (event.target === dialog) dialog.close(); }); });
@@ -768,6 +872,14 @@
   function init() {
     if (currentAccount()) loadLocalAccountLibrary();
     $("#year").textContent = new Date().getFullYear(); setupAccountDrawer(); wireEvents(); renderRegions(); renderSpecies(); renderTopics(); updateRegionPanel(); renderSavedCount(); updateAccountUI();
+    $$("[data-i18n]").forEach(element => {
+      const value = translations[language]?.[element.dataset.i18n];
+      if (value) element.innerHTML = value;
+    });
+    $$("[data-i18n-placeholder]").forEach(element => {
+      const value = translations[language]?.[element.dataset.i18nPlaceholder];
+      if (value) element.placeholder = value;
+    });
     if (language === "en") setLanguage("en");
     initMap(); loadMarineData();
     if (config.supabaseUrl && config.supabaseAnonKey && currentSession()) loadCloudLibrary();

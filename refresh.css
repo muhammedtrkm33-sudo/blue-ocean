@@ -883,11 +883,179 @@ body {
   letter-spacing: 1px;
 }
 
+.drawer-feedback-heading {
+  margin: 28px 0 11px;
+  color: #617987;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+}
+
+.drawer-feedback-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.drawer-feedback-link {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 64px;
+  padding: 11px 13px;
+  border: 1px solid #cddfe7;
+  background: linear-gradient(105deg, #edf6f8, #fff 62%);
+  color: #17384c;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.drawer-feedback-link:hover {
+  transform: translateY(-2px);
+  border-color: #79adbd;
+  box-shadow: 0 7px 18px rgb(18 50 71 / 9%);
+}
+
+.drawer-feedback-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid #c5dfe6;
+  background: #fff;
+  color: #087da0;
+  font-size: 20px;
+}
+
+.drawer-feedback-link > span:nth-child(2) {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.drawer-feedback-link .drawer-link-arrow {
+  color: #087da0;
+  font-size: 15px;
+}
+
 .verification-hint {
   display: block;
   margin-top: -7px;
   color: #617987;
   font-size: 12px;
+}
+
+.feedback-dialog {
+  width: min(650px, calc(100vw - 28px));
+  max-height: min(90vh, 820px);
+  overflow-y: auto;
+}
+
+.feedback-content h2 {
+  margin: 0;
+  color: #17384c;
+  font: 700 clamp(27px, 5vw, 38px)/1.15 var(--display);
+  letter-spacing: -1px;
+}
+
+.feedback-content h2 span {
+  color: #087da0;
+}
+
+.feedback-intro {
+  margin: 12px 0 24px;
+  color: #617987;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.feedback-content form {
+  display: grid;
+  gap: 11px;
+}
+
+.feedback-content form > label,
+.feedback-name-choice legend {
+  color: #365567;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.feedback-content select,
+.feedback-content input[type="text"],
+.feedback-content textarea {
+  width: 100%;
+  min-height: 45px;
+  padding: 11px 13px;
+  border: 1px solid #d5e1e7;
+  border-radius: 2px;
+  background: #fff;
+  color: #17384c;
+  font: inherit;
+}
+
+.feedback-content select:focus,
+.feedback-content input[type="text"]:focus,
+.feedback-content textarea:focus {
+  border-color: #087da0;
+  outline: 2px solid rgb(8 125 160 / 14%);
+}
+
+.feedback-content textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.feedback-name-choice {
+  display: grid;
+  gap: 10px;
+  margin: 8px 0 2px;
+  padding: 14px;
+  border: 1px solid #dce5ea;
+  background: #f6f9fa;
+}
+
+.feedback-name-choice legend {
+  padding: 0 5px;
+}
+
+.feedback-name-choice label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #496574;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.feedback-name-choice input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: #087da0;
+}
+
+.feedback-privacy {
+  margin: 0;
+  color: #718694;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.feedback-honeypot {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+}
+
+.feedback-content #feedback-message {
+  margin: 12px 0 0;
 }
 
 .account-content form[hidden] {
