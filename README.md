@@ -4,6 +4,12 @@
 
 Türkçe ve İngilizce bir deniz araştırma ve keşif arayüzü. HTML, CSS ve tarayıcı JavaScript'i ile hazırlanmıştır; ön yüzü derlemek veya bağımlılık yüklemek gerekmez.
 
+## Hukuki bilgiler ve gizlilik
+
+Sitenin alt bilgisindeki **Kullanım Koşulları** ve **Gizlilik ve Çerezler** bağlantıları güncel metne ve kullanım rızasına yönlendirir. Yeni oturum veya kayıt işlemi tamamlanmadan önce kullanıcıdan bu metinlerin kabulü zorunlu tutulur. Metinler 27 Ekim 2026 tarihi için hazırlanmış genel platform bildirimleridir; gerçek yayıncı, iletişim adresi ve sorumluluk bilgilerini siteyi yayına almadan önce yerel hukuki danışmanla doğrulayın.
+
+Site reklam veya analiz çerezleri kullanmaz. Oturum, dil, kaydedilen denizler ve tercih edilen profil fotoğrafı gerekli tarayıcı depolamasıyla tutulur. Supabase yapılandırıldığında hesap verileri ve kaydedilen liste bulutta işlenir; servis yapılandırılmamışsa yalnızca yerel profille ilerlenebilir.
+
 ## Başlatma
 
 1. Bu depoyu GitHub'a yükleyin veya bilgisayarınıza klonlayın.
@@ -62,7 +68,8 @@ GitHub'da yeni bir depoya `main` dalını gönderip **Settings → Pages → Sou
 
 - **Deniz suyu yüzey sıcaklığı ve dalga yüksekliği:** Open-Meteo Marine API. Arayüz mevcut değerleri *model tahmini* olarak etiketler, birim ve API yanıt zamanını gösterir. Sayfa açıkken tahmin yanıtı saatlik yenilenir; arka planda bekleyen sekme görünür olduğunda yenileme zamanı geçmişse yeniden istenir. Bu değerler istasyon ölçümü veya kirlilik ölçümü değildir. Bazı konum veya modeller için alanlar eksik olabilir. Yayımlanmış araştırma tahminleri ve kaynak metinleri saatlik canlı veri değildir.
 - Araştırma asistanına güncel deniz sıcaklığı veya dalga tahmini sorulduğunda, mevcut Open-Meteo yanıtından değerleri ve tahmin zamanını gösterir. Bu yanıt API verisidir; istasyon ölçümü veya Claude tarafından üretilen yanıt değildir. Diğer araştırma sorularında yapılandırılmış Claude API'si yoksa kaynak rehberi kullanılır.
-- **Harita:** Esri okyanus altlığı önceliklidir; Esri yanıt vermezse OpenStreetMap verisini kullanan CARTO koyu haritasına geçilir. Her iki sağlayıcı başarısız olursa 13 deniz/okyanus bölgesi için seçim listesi kullanılabilir; bunlara Afrika kıyılarındaki Gine Körfezi de dahildir. Katkıcı/sağlayıcı atıfları harita üzerinde görünür. Haritadaki atık birikimi ve araştırma noktaları yaklaşık, bilgilendirme amaçlı konumlardır; kirlilik sınırı veya gerçek zamanlı sensör değildir.
+- **Harita:** OpenStreetMap altlığı önceliklidir; ağ kesintisinde OpenStreetMap verisini kullanan CARTO koyu haritasına geçilir. Her iki sağlayıcı da başarısız olursa deniz/okyanus bölgesi seçim listesi kullanılabilir. Katkıcı/sağlayıcı atıfları harita üzerinde görünür. Katkıcı/sağlayıcı atıfları harita üzerinde görünür. Haritadaki atık birikimi ve araştırma noktaları yaklaşık, bilgilendirme amaçlı konumlardır; kirlilik sınırı veya gerçek zamanlı sensör değildir.
+- **Balık gözlem noktaları:** Marmara, Ege, Akdeniz, Karadeniz ve seçili iç su alanlarında yaklaşık, kamu bilgilendirme amaçlı eğitim noktaları bulunur. İşaretler türün bulunma olasılığını veya avlanma garantisini göstermez; mevsim, su sıcaklığı, avlanma yasağı ve resmî ilanların güncelliği kontrol edilmelidir. Ana veri noktaları [Tarım ve Orman Bakanlığı](https://www.tarimorman.gov.tr/) ve [FAO balıkçılık verileri](https://www.fao.org/fishery/en) gibi kurumların kaynak sayfalarına bağlanır.
 - **Okyanus seviyesi:** NASA Sea Level Project bağlantısı. Uygulamada canlı deniz seviyesi değeri iddia edilmez.
 - **Kirlilik / plastik:** Araştırma bölümündeki 19–23 milyon ton/yıl su ekosistemlerine plastik sızıntısı tahmini (tatlı suları da kapsar), nehir kaynaklı deniz plastiğine ilişkin 2021 modellemesi, deniz çöplerindeki plastik payına ilişkin UNEP tahmini ve 2018 gemi CO₂ tahmini kaynak bağlantılarıyla sunulur. Bunlar farklı kapsam ve yıllara aittir; seçili kıyının ölçümü, karşılaştırılabilir kirlilik oranı veya gerçek zamanlı gösterge değildir. Gine Körfezi ve diğer kıyılar izleme/araştırma alanı olarak işaretlenir; verisi olmayan bölge için sayısal sıralama uydurulmaz.
 - **İnsanlar, deniz canlıları ve gemiler:** Kirliliğin yutulma, takılma, habitat kaybı, besin ağı ve sağlıkla ilişkili yolları; deniz taşımacılığının gıda/ilaç/ticaret erişimine katkısı ve emisyon, gürültü, çarpışma ve atık baskıları kaynaklarla özetlenir. Çözümler BM Sürdürülebilir Kalkınma Amacı 14'ün 14.1, 14.2, 14.4 ve 14.5 hedefleriyle eşleştirilir.
@@ -77,7 +84,7 @@ Favori denizler ve araştırma listeleri, CSV indirme ve yazdırılabilir rapor/
 
 ## Teknik notlar
 
-- Harita Leaflet ile Esri okyanus karolarını ve CARTO koyu haritasını yedek olarak kullanır; iki sağlayıcı da erişilemezse 13 deniz/okyanus bölgesi için metin tabanlı yedek liste açılır.
+- Harita Leaflet ile OpenStreetMap karolarını ve CARTO koyu haritasını yedek olarak kullanır; iki sağlayıcı da erişilemezse 13 deniz/okyanus bölgesi için metin tabanlı yedek liste açılır.
 - Grafik SVG ile çizilir ve kaynak API'den dönen saatlik verilerle güncellenir; dönem, deniz ve ölçüm seçilebilir.
 - Harici servis kesintisi ve veri eksikliği görünür şekilde ele alınır.
 - İstemci tarafı ayar dosyası yalnızca herkese açık Supabase URL/anon anahtarını ve aynı-origin API yolunu içerir.

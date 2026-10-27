@@ -22,6 +22,18 @@
     { name: { tr: "Sargasso Denizi (araştırma alanı)", en: "Sargasso Sea (research area)" }, lat: 29, lon: -65, type: "risk" },
     { name: { tr: "Mercan resifleri (araştırma alanı)", en: "Coral reef research area" }, lat: -17, lon: 147, type: "risk" }
   ];
+  const fishLocations = [
+    { id: "marmara", name: { tr: "Marmara Denizi · Kadıköy açıkları", en: "Sea of Marmara · off Kadıköy" }, lat: 40.93, lon: 29.08, area: "marmara", fishes: ["Lüfer", "Çipura", "Hamsi"], detail: { tr: "Geçiş akıntılarıyla beslenen yoğun kıyı-ekosisteminde mevsimsel olarak gözlenir.", en: "Seasonally observed in a coastal ecosystem influenced by transition currents." }, source: "https://www.fao.org/fishery/en/collection/search" },
+    { id: "istanbul-strait", name: { tr: "İstanbul Boğazı", en: "Bosphorus" }, lat: 41.12, lon: 29.05, area: "marmara", fishes: ["Lüfer", "Palamut", "Kılıç balığı"], detail: { tr: "Göç yolları ve iki su katmanı nedeniyle balık hareketi mevsime göre değişir.", en: "Fish movement varies by season along a migration corridor with two water layers." }, source: "https://www.tarimorman.gov.tr/SGB/Belgeler/Su_%C3%9Cr%C3%Bcnleri/" },
+    { id: "aegean-izmir", name: { tr: "İzmir Körfezi", en: "Gulf of İzmir" }, lat: 38.45, lon: 26.75, area: "egean", fishes: ["Levrek", "Çipura", "Barbun"], detail: { tr: "Sığ kıyı, lagün ve kayalık habitatlarının yakınında daha sık karşılaşılır.", en: "More commonly encountered near shallow coastal, lagoon and rocky habitats." }, source: "https://www.fao.org/fishery/en/collection/search" },
+    { id: "aegean-gokova", name: { tr: "Gökova Körfezi", en: "Gökova Bay" }, lat: 36.94, lon: 28.02, area: "aegean", fishes: ["Orfoz", "Levrek", "Sargoz"], detail: { tr: "Kayalık, çimlik ve koruma alanlarıyla farklı habitatlara ev sahipliği yapar.", en: "Provides varied habitats including rocky areas, seagrass and protected zones." }, source: "https://www.iucnredlist.org/" },
+    { id: "med-antalya", name: { tr: "Antalya Körfezi", en: "Gulf of Antalya" }, lat: 36.86, lon: 30.78, area: "mediterranean", fishes: ["Çipura", "Sardalya", "Zargana"], detail: { tr: "Sıcaklık ve besin zenginliği mevsimsel olarak değişiklik gösterebilir.", en: "Temperature and productivity can change significantly by season." }, source: "https://www.fao.org/fishery/en/collection/search" },
+    { id: "med-mersin", name: { tr: "Mersin açıkları", en: "Off Mersin" }, lat: 36.65, lon: 34.65, area: "mediterranean", fishes: ["Orfoz", "Sinarit", "Karagoz"], detail: { tr: "Akdeniz kıyı suları ve kayalık habitatlarında farklı türler gözlenebilir.", en: "Various species can be observed in Mediterranean coastal waters and rocky habitats." }, source: "https://www.iucnredlist.org/" },
+    { id: "black-sinop", name: { tr: "Sinop açıkları", en: "Off Sinop" }, lat: 42.08, lon: 35.1, area: "black-sea", fishes: ["Hamsi", "Palamut", "Kalkan"], detail: { tr: "Karadeniz'in besin akışları ve göç yollarına açık bir kıyı alanıdır.", en: "A coastal area open to Black Sea productivity and migration routes." }, source: "https://www.fao.org/fishery/en/collection/search" },
+    { id: "black-trabzon", name: { tr: "Trabzon açıkları", en: "Off Trabzon" }, lat: 41.08, lon: 39.72, area: "black-sea", fishes: ["Hamsi", "İstavrit", "Palamut"], detail: { tr: "Karadeniz kıyı ekosisteminde türlerin görülebilirliği mevsime göre değişir.", en: "Species visibility along the Black Sea coast varies by season." }, source: "https://www.tarimorman.gov.tr/SGB/Belgeler/Su_%C3%9Cr%C3%Bcnleri/" },
+    { id: "inland-beysehir", name: { tr: "Beyşehir Gölü", en: "Lake Beyşehir" }, lat: 37.76, lon: 31.54, area: "inland", fishes: ["Sazan", "Sudak", "Turna"], detail: { tr: "İç su balığı türleri gölün habitatı, avlanma düzenlemeleri ve mevsimlere göre değişebilir.", en: "Inland fish species vary by habitat, regulations and season." }, source: "https://www.tarimorman.gov.tr/" },
+    { id: "inland-keban", name: { tr: "Keban Baraj Gölü", en: "Lake Keban" }, lat: 38.8, lon: 39.55, area: "inland", fishes: ["Sazan", "Turna", "Kızılkanat"], detail: { tr: "Baraj gölü; derinlik, akıntı ve su seviyesine göre farklı iç su habitatları sunar.", en: "A reservoir offering varied inland habitats according to depth, flow and water level." }, source: "https://www.tarimorman.gov.tr/" }
+  ];
   const species = [
     { name: { tr: "Mavi balina", en: "Blue whale" }, scientific: "Balaenoptera musculus", status: { tr: "IUCN: Tehlikede", en: "IUCN: Endangered" }, img: "photo-1568430462989-44163eb1752f", detail: { tr: "Okyanusun en büyük hayvanı. Krille beslenir ve karbonun okyanusta depolanmasına katkıda bulunan deniz besin döngüsünde rol oynar. Tür genelinde IUCN kategorisi: Tehlikede (Endangered).", en: "The largest animal on Earth. It feeds on krill and plays a role in ocean nutrient cycles that help sequester carbon. Global IUCN status: Endangered." }, source: "https://www.iucnredlist.org/species/2477/156923585" },
     { name: { tr: "Caretta caretta", en: "Loggerhead turtle" }, scientific: "Caretta caretta", status: { tr: "IUCN: Hassas", en: "IUCN: Vulnerable" }, img: "photo-1559827260-dc66d52bef19", detail: { tr: "Akdeniz'de üreyen deniz kaplumbağalarından. Balıkçılık ekipmanlarına takılma, yuvalama sahalarının kaybı ve deniz kirliliği başlıca tehditler arasındadır. Bölgesel durumu popülasyona göre değişebilir.", en: "A sea turtle that nests around the Mediterranean. Entanglement in fishing gear, loss of nesting beaches and marine pollution are among its main threats. Regional status varies by population." }, source: "https://www.iucnredlist.org/species/3897/119333622" },
@@ -57,13 +69,44 @@
       impactEyebrow: "POLLUTION · EVIDENCE · ACTION", impactTitle: "Pollution has <span>many sources.</span>", impactIntro: "Published global estimates describe different things and years. They are not live readings or directly comparable regional pollution scores.", impactScope: "HOW TO READ THE NUMBERS", impactScopeCopy: "These figures use different scopes: plastic leakage into aquatic ecosystems includes freshwater; river studies model only river-borne plastic; ship emissions measure greenhouse gases. None is a sensor reading for the selected sea.", impactStat1Title: "Plastic entering aquatic ecosystems", impactStat1Copy: "UNEP estimates 19–23 million tonnes of plastic waste leak into aquatic ecosystems each year. This includes rivers, lakes and seas—not just direct ocean input.", impactStat2Title: "River-borne plastic", impactStat2Copy: "A 2021 model found around 1,000 rivers account for about 80% of global annual riverine plastic emissions to the ocean. This is a modeled river-input estimate, not all marine litter.", impactStat3Title: "Plastic in marine litter", impactStat3Copy: "UNEP reports plastic makes up about 85% of marine litter. Composition varies by location, sampling method and survey period.", impactStat4Title: "Shipping emissions", impactStat4Copy: "The IMO estimated shipping produced 2.89% of global anthropogenic CO₂ emissions in 2018. This is a historical estimate, not a current vessel-by-vessel measurement.", impactDataLabel: "PUBLISHED ESTIMATE", impactAfricaTitle: "Regional research areas", impactAfricaCopy: "The Gulf of Guinea and other African coasts face locally distinct pressures from land-based waste, wastewater, fishing and shipping. South and Southeast Asian river outlets, the Mediterranean and the North Pacific gyre are also important research areas. These examples are not a ranked pollution map; monitoring coverage and methods differ.", impactRegionGuinea: "Explore the Gulf of Guinea ↗", impactRegionIndian: "Explore the Indian Ocean ↗", impactRegionMediterranean: "Explore the Mediterranean ↗", impactSpeciesTitle: "Wildlife and people", impactSpeciesCopy: "Wildlife can ingest plastic, become entangled in lost gear, or lose healthy habitat. Turtles, seabirds and marine mammals face different risks; pollutants can also move through food webs. People depend on the sea for food, jobs and wellbeing, while unsafe wastewater and contaminated seafood can create health risks. Effects depend on the pollutant, species, place and exposure—follow local food-safety guidance.", impactShipsTitle: "Ships: benefits and pressures", impactShipsCopy: "Maritime transport moves most international trade by volume and supports access to food, medicine and livelihoods. At the same time, vessels contribute greenhouse-gas and air emissions, underwater noise, collision risks, invasive species and pollution from spills or waste. Cleaner fuels, efficient routing, safer operations, waste reception and international standards reduce these pressures.", impactSolutionsTitle: "Solutions and global goals", impactSolutionsCopy: "Prevent waste at source; improve reuse, collection and wastewater treatment; reduce lost fishing gear; monitor coasts consistently; protect and restore habitats; and enforce ship-pollution rules. Track progress against UN Sustainable Development Goal 14—especially targets 14.1 (marine pollution), 14.2 (ecosystems), 14.4 (fisheries) and 14.5 (protected areas)—alongside local targets.", impactSourceUnep: "UNEP · Turning off the Tap ↗", impactSourceRivers: "Meijer et al. · Science Advances (2021) ↗", impactSourceShipping: "IMO · Fourth GHG Study ↗", impactSourceAfrica: "UNEP · Regional Seas ↗", impactSourceAbidjan: "Abidjan Convention ↗", impactSourceIucn: "IUCN Red List ↗", impactSourceSdg: "UN · Sustainable Development Goal 14 ↗",
       lifeEyebrow: "LIFE IN COMMON", lifeTitle: "Life in <span>blue.</span>", lifeCopy: "Every species plays a role in the marine ecosystem. Conservation status can vary by species and population; check the IUCN record for details.", iucnButton: "IUCN Red List ↗",
       topicsEyebrow: "UNDERSTAND THE OCEAN", topicsTitle: "Go deeper. <span>Make a difference.</span>", topicsIntro: "Learn about major environmental issues, continue with trusted sources and discover everyday actions.", actionEyebrow: "WE CAN MAKE A DIFFERENCE TOGETHER", actionTitle: "One small step.<br><span>A bluer future.</span>", actionCopy: "Reduce single-use plastic, join a local cleanup and share what you learn about marine life.", actionButton: "Take action today",
-      footerSlogan: "UNDERSTAND THE SEA. PROTECT OUR FUTURE.", footerCopy: "Inspired by science. Working for our seas.", footerRights: "· Sources belong to their respective owners.",
+      footerSlogan: "UNDERSTAND THE SEA. PROTECT OUR FUTURE.", footerCopy: "Inspired by science. Working for our seas.", footerRights: "· Sources belong to their respective owners.", footerTerms: "Terms of use", footerPrivacy: "Privacy & cookies", accountConsent: "I have read and accept the <button type=\"button\" data-legal=\"terms\">Terms of Use</button> and <button type=\"button\" data-legal=\"privacy\">Privacy Notice</button>." , privacyBannerTitle: "Essential storage notice", privacyBannerText: "This site uses browser storage for sign-in state and preferences. It does not use advertising or analytics cookies.", privacyBannerDetails: "Details", privacyBannerAccept: "Got it",
       assistantEyebrow: "OCEAN RESEARCH GUIDE", assistantTitle: "Ask a question.<br><span>Explore the evidence.</span>", assistantCopy: "Sea-temperature and wave questions use Open-Meteo model forecasts when available. Other research questions use Claude when the protected server API is configured, or the clearly labelled source guide.", assistantLabel: "What would you like to know about the sea?", assistantPlaceholder: "E.g. What are the main environmental pressures on the Sea of Marmara?", assistantAsk: "Explore", accountEyebrow: "PERSONAL RESEARCH SPACE", accountTitle: "Save what you <span>discover.</span>", accountCopy: "With Supabase configured, a verification code is sent to your email. Email verification is unavailable until the project is configured.", emailLabel: "Email", passwordLabel: "Password", passwordHint: "(8–128 characters)", signIn: "Sign in", signUp: "Create account", signOut: "Sign out", verificationCodeLabel: "Email verification code", verificationCodeHint: "Enter the 6-digit code sent to your email.", verifyEmail: "Verify email", resendCode: "Resend code", changeEmail: "Change email", accountSections: "Explore the site", drawerTitle: "Explore BLUE OCEAN", drawerCopy: "Choose a section to continue exploring.", feedbackLinksTitle: "Make a difference", feedbackIdeas: "Share an idea or project", feedbackRequests: "Requests and complaints", feedbackDialogEyebrow: "YOUR VOICE FOR THE OCEAN", feedbackTitle: "Share what you have in mind.", feedbackIntro: "Share an idea, project, request or complaint about protecting our waters and seas.", feedbackTypeLabel: "What would you like to share?", feedbackIdeaOption: "Idea or project", feedbackRequestOption: "Request", feedbackComplaintOption: "Complaint", feedbackNameLabel: "Your name (optional)", feedbackNamed: "I would like to include my name", feedbackAnonymous: "I prefer not to share my name", feedbackFullNameLabel: "First and last name", feedbackMessageLabel: "Your idea, request or complaint", feedbackMessagePlaceholder: "Write your idea, project, request or complaint here…", feedbackPrivacy: "Please do not include passwords, financial details or other sensitive personal information.", feedbackSubmit: "Send", feedbackSending: "Sending…", feedbackSent: "Thank you. Your submission has been received.", feedbackMissingConfig: "Submissions are not connected yet. Please try again later.", feedbackError: "Your submission could not be sent. Please try again later."
     }
   };
+  const legalContent = {
+    tr: {
+      terms: {
+        eyebrow: "GÜNCEL SİTE ŞARTLARI",
+        title: "Kullanım Koşulları",
+        effective: "Yürürlük tarihi: 27 Ekim 2026",
+        body: `<h3>1. Hizmetin kapsamı</h3><p>BLUE OCEAN, denizler, deniz yaşamı ve çevresel araştırma konularını açıklayan eğitim amaçlı bir bilgi platformudur. Sunulan harita, tahminler ve biyolojik durum bilgileri; bilgilendirme içindir ve bilimsel, hukuki veya tıbbi tavsiye yerine geçmez.</p><h3>2. Verilerin yorumu</h3><p>Open-Meteo tahminleri model çıktısıdır; doğrudan gözlem değildir. Üçüncü taraf raporlar, sayıların tanım, kapsam ve tarihine göre değişir. Kural, rehber veya acil durum kararı için ilgili resmi kuruma başvurulmalıdır.</p><h3>3. Hesap ve güvenli kullanım</h3><p>Hesabınızın kimlik bilgilerini gizli tutmanız, hizmeti kötüye kullanmamanız ve başkalarının haklarını ihlal eden içerik paylaşmamanız gerekir. Bilgilerin yanlış, yasa dışı, spam veya zararlı olması halinde kayıt işlemi veya erişim sınırlanabilir.</p><h3>4. Araştırma asistanı</h3><p>Yapay zekâ asistanı hatalı veya eksik yanıt üretebilir. Yanıtları bağımsız olarak doğrulamak kullanıcının sorumluluğudur. Güncel güvenlik ve güvenilirlik kararlarında resmi kaynaklar esas alınmalıdır.</p><h3>5. Kaynaklar ve sorumluluk sınırı</h3><p>Harita, veri ve içeriklerin lisansları kaynak sahiplerine ait olabilir. Mevcut şartlar değişebilir; yayınlanan sürümün en güncel hali bu sayfada belirtilir. Hizmet mümkün olan en iyi çabayla sunulur; kesinti veya veri hatalarından doğan doğrudan/ dolaylı kayıplara ilişkin sorumluluk sınırları yürürlükteki mevzuata tabidir.</p>`
+      },
+      privacy: {
+        eyebrow: "GÜNCEL AYDINLATMA",
+        title: "Gizlilik ve Çerez Aydınlatması",
+        effective: "Yürürlük tarihi: 27 Ekim 2026",
+        body: `<h3>İşlenen bilgiler</h3><p>Hesap kaydı ve oturum açma sırasında, seçtiğiniz hizmet sağlayıcı tarafından e-posta adresi, hesap kimliği, ad-soyad gibi hesap bilgileriniz işlenebilir. Cihazda dil tercihi, oturum durumu, kaydedilen denizler ve ad-soyad dışındaki profil tercihleri saklanabilir.</p><h3>Hız limiti ve sunucu kayıtları</h3><p>Araştırma asistanı kötüye kullanımı önlemek amacıyla istem kaynağına ait teknik bilgileri ve istek sayısını geçici olarak işleyebilir. Bu veriler paylaşımlı hız sınırlayıcıda gizlenmiş kimlik anahtarıyla tutulabilir; işlemler süreli anahtarlar üzerinden yürütülür.</p><h3>Üçüncü taraflarla veri</h3><p>Harita, tahminler, fontlar ve görseller gibi kaynaklar sayfa yüklenirken dış sağlayıcılara teknik istek gönderebilir. Kimlik doğrulama ve bulut kayıtları, yapılandırılmış Supabase servisi ile yönetilir. Araştırma asistanı açıkça etkinleştirildiğinde sorunuz Anthropic API'ye iletilebilir. Üçüncü tarafların kendi gizlilik ve saklama politikaları ayrıca uygulanır.</p><h3>Zorunlu depolama ve çerezler</h3><p>BLUE OCEAN reklam veya analiz çerezleri kullanmaz. Oturum, dil, kaydedilen liste ve profil fotoğrafı gibi özellikleri çalıştırmak için tarayıcı localStorage kullanılır. Bu kayıtlar tarayıcı ayarlarından silinebilir; silinmesi oturumu veya yerel tercihleri kaldırır.</p><h3>Haklarınız</h3><p>Özellikle 6698 sayılı Kişisel Verilerin Korunması Kanunu ve uygulanabilir mevzuat kapsamında kişisel verilerinizin işlenip işlenmediğini öğrenme, erişme, düzeltilme ve silinmesini isteme haklarına sahipsiniz. Hesabı bu platformda barındıran operatör, kişisel verilerden sorumlu veri işleticisidir; gereken talimatların verilmesi için hesap ayarlarındaki seçimleri ve site yayıncısının iletişim kanalını kullanmalısınız.</p><h3>Güncellemeler</h3><p>Bu aydınlatma ve çerez bilgisi 27 Ekim 2026 tarihinde güncellendi. İşlenen veriler veya hizmet sağlayıcılar değişirse metnin geçerli sürümü bu sayfada güncellenir.</p>`
+      }
+    },
+    en: {
+      terms: {
+        eyebrow: "CURRENT SITE TERMS",
+        title: "Terms of Use",
+        effective: "Effective date: October 27, 2026",
+        body: `<h3>1. Scope of service</h3><p>BLUE OCEAN is an educational information platform about seas, marine life and environmental research. The map, forecasts and conservation status information are provided for awareness and do not constitute scientific, legal or medical advice.</p><h3>2. Interpreting data</h3><p>Open-Meteo forecasts are model output, not direct observations. Third-party reports vary by definition, scope and year. Consult the relevant official authority for rules, guidance or urgent decisions.</p><h3>3. Accounts and acceptable use</h3><p>Keep your account credentials confidential and do not misuse the service or share content that violates others' rights. Access may be restricted if information is false, unlawful, spam or harmful.</p><h3>4. Research assistant</h3><p>The AI assistant may produce incomplete or inaccurate answers. Users are responsible for independently verifying responses. Official sources should be used for current safety and reliability decisions.</p><h3>5. Sources and liability</h3><p>Map, data and content licences belong to their respective owners. These terms may change, and the latest published version is identified on this page. The service is provided on a reasonable-efforts basis. Applicable law determines liability for interruptions or data errors.</p>`
+      },
+      privacy: {
+        eyebrow: "CURRENT NOTICE",
+        title: "Privacy & Cookie Notice",
+        effective: "Effective date: October 27, 2026",
+        body: `<h3>Information processed</h3><p>During account registration and sign-in, the selected provider may process account details including email address, account identifier and full name. Browser storage may hold language preference, session state, saved seas and profile preferences other than name.</p><h3>Rate limiting and server records</h3><p>The research assistant may temporarily process technical request-source information and request counts to prevent abuse. These values may use hashed identifiers in a shared rate limiter and are retained through expiring keys.</p><h3>Third-party services</h3><p>Loading maps, forecasts, fonts and images may send technical requests to external providers. Authentication and cloud records are managed by the configured Supabase service. When the research assistant is enabled, a question may be sent to the Anthropic API. Third-party privacy and retention policies also apply.</p><h3>Essential storage and cookies</h3><p>BLUE OCEAN does not use advertising or analytics cookies. localStorage is used to operate sign-in, language, saved lists and the profile photo feature. These records can be deleted in browser settings; deletion removes local preferences or session state.</p><h3>Your rights</h3><p>Under applicable privacy laws, including the EU GDPR and Türkiye's KVKK where applicable, you may request information about or access to, correction or deletion of your personal data. The operator hosting this platform is the controller for account data. Use account settings and the site's public publisher/contact channel for the required requests.</p><h3>Updates</h3><p>This notice was updated on October 27, 2026. If processed data or providers change, the current version of this text will be updated on this page.</p>`
+      }
+    }
+  };
+
   const accountTranslations = {
     tr: {
-      account: "Hesabım",
+      account: "Hesabım", footerTerms: "Kullanım Koşulları", footerPrivacy: "Gizlilik ve Çerezler", accountConsent: "<button type=\"button\" data-legal=\"terms\">Kullanım Koşullarını</button> ve <button type=\"button\" data-legal=\"privacy\">Gizlilik Aydınlatmasını</button> okudum, kabul ediyorum.", privacyBannerTitle: "Gerekli veri bilgilendirmesi", privacyBannerText: "Bu sitede oturum ve tercihlerini cihazda tutan gerekli depolama kullanılır. Analitik veya reklam çerezi kullanılmaz.", privacyBannerDetails: "Detaylar", privacyBannerAccept: "Anladım",
       signUp: "Hesap oluştur",
       profileEyebrow: "HESABIM",
       profileButton: "Profilim",
@@ -120,7 +163,18 @@
     impactValueShipping: "2.89%",
     impactHistoricalLabel: "2018 DATA",
     impactSourceUnepReport: "UNEP · Turning off the Tap (2023) ↗",
-    impactFootnote: "Note: These published figures use different definitions, geographic scopes and years. Selecting a sea on the map does not turn them into local measurements; this page does not provide live pollution-sensor data."
+    impactFootnote: "Note: These published figures use different definitions, geographic scopes and years. Selecting a sea on the map does not turn them into local measurements; this page does not provide live pollution-sensor data.",
+    fishMapEyebrow: "CITIZEN MAP",
+    fishMapTitle: "Where might you find which fish?",
+    fishMapIntro: "Zoom into a marker or choose a location to focus the map on that point.",
+    fishArea: "Water area",
+    fishAll: "All areas",
+    fishMarmara: "Marmara",
+    fishAegean: "Aegean",
+    fishMediterranean: "Mediterranean",
+    fishBlackSea: "Black Sea",
+    fishInland: "Inland waters",
+    fishDisclaimer: "Locations are approximate educational points, not a catch prediction, official fishing boundary or permission to fish."
   });
   let language = localStorage.getItem("bo-language") === "en" ? "en" : "tr";
   let pendingVerificationEmail = "";
@@ -131,6 +185,7 @@
   let map = null;
   let markerLayer = null;
   let tileLayer = null;
+  let fishMarkerLayer = null;
   let tileErrors = 0;
   let usingAlternateTiles = false;
   let toastTimer = null;
@@ -153,6 +208,31 @@
     return turkish[key] || key;
   };
   const local = (value) => typeof value === "object" ? (value[language] || value.tr) : value;
+  function openLegal(type) {
+    const notice = legalContent[language]?.[type] || legalContent.tr[type];
+    if (!notice) return;
+    $("#legal-eyebrow").textContent = notice.eyebrow;
+    $("#legal-title").textContent = notice.title;
+    $("#legal-effective").textContent = notice.effective;
+    $("#legal-body").innerHTML = notice.body;
+    $("#legal-dialog").dataset.type = type;
+    $("#legal-dialog").showModal();
+  }
+  function recordLegalConsent() {
+    try { localStorage.setItem("bo-legal-consent", JSON.stringify({ version: "2026-10-27", acceptedAt: new Date().toISOString(), type: "terms-and-privacy" })); }
+    catch (error) { console.warn("Legal consent could not be recorded:", error); }
+  }
+  function initPrivacyNotice() {
+    const banner = $("#privacy-banner");
+    if (!banner) return;
+    let acknowledged = false;
+    try { acknowledged = localStorage.getItem("bo-privacy-notice") === "2026-10-27"; } catch { acknowledged = true; }
+    banner.hidden = acknowledged;
+  }
+  function acknowledgePrivacyNotice() {
+    try { localStorage.setItem("bo-privacy-notice", "2026-10-27"); } catch { /* The notice remains only for this visit if storage is unavailable. */ }
+    $("#privacy-banner").hidden = true;
+  }
   function readJSON(key, fallback) { try { const value = JSON.parse(localStorage.getItem(key)); return value && typeof value === "object" ? value : fallback; } catch { return fallback; } }
   function escapeHTML(value) { return String(value).replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]); }
   function notify(message) { const toast = $("#toast"); toast.textContent = message; toast.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove("show"), 2600); }
@@ -160,7 +240,7 @@
     language = next; localStorage.setItem("bo-language", language); document.documentElement.lang = language; document.title = language === "tr" ? "BLUE OCEAN — Denizleri Anla, Geleceği Koru" : "BLUE OCEAN — Understand the Sea, Protect Our Future";
     $$("[data-i18n]").forEach(el => { const value = translations[language]?.[el.dataset.i18n] || accountTranslations[language]?.[el.dataset.i18n]; if (value) el.innerHTML = value; });
     $$("[data-i18n-placeholder]").forEach(el => { const value = translations[language]?.[el.dataset.i18nPlaceholder] || accountTranslations[language]?.[el.dataset.i18nPlaceholder]; if (value) el.placeholder = value; });
-    $("#language-switch").textContent = language === "tr" ? "EN" : "TR"; $("#profile-language").value = language; renderRegions(); renderSpecies(); renderTopics(); updateRegionPanel(); renderChart(); renderSavedCount(); updateAccountUI(); if (map) refreshMarkers(); if (!$("#map-fallback").hidden) $("#map-reset").textContent = language === "tr" ? "Haritayı yeniden dene ↻" : "Retry map ↻";
+    $("#language-switch").textContent = language === "tr" ? "EN" : "TR"; $("#language-switch").setAttribute("aria-pressed", language === "en" ? "true" : "false"); $("#profile-language").value = language; renderRegions(); renderSpecies(); renderTopics(); updateRegionPanel(); renderChart(); renderSavedCount(); updateAccountUI(); if (map) { refreshMarkers(); renderFishLocations($("#fish-area-filter")?.value || "all"); } if (!$("#map-fallback").hidden) $("#map-reset").textContent = language === "tr" ? "Haritayı yeniden dene ↻" : "Retry map ↻"; if ($("#legal-dialog").open) openLegal($("#legal-dialog").dataset.type);
   }
   function initMap() {
     if (!window.L || !$("#ocean-map")) { showMapFallback(); return; }
@@ -169,8 +249,10 @@
       addPrimaryTileLayer();
       L.control.zoom({ position: "topright" }).addTo(map);
       markerLayer = L.layerGroup().addTo(map);
+      fishMarkerLayer = L.layerGroup().addTo(map);
       map.on("click", () => { map.scrollWheelZoom.enable(); });
       refreshMarkers();
+      renderFishLocations();
       map.setView([selectedRegion.lat, selectedRegion.lon], selectedRegion.zoom);
       setTimeout(() => map?.invalidateSize(), 100);
     } catch (error) { console.error("Map initialization failed:", error); showMapFallback(); }
@@ -180,10 +262,11 @@
     tileLayer?.remove();
     tileErrors = 0;
     usingAlternateTiles = false;
-    $("#map-attribution").textContent = "© Esri · GEBCO · NOAA";
-    tileLayer = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}", {
-      maxZoom: 9,
-      attribution: "Tiles &copy; Esri — Sources: Esri, GEBCO, NOAA, National Geographic, and other contributors"
+    $("#map-attribution").textContent = "© OpenStreetMap · BLUE OCEAN";
+    tileLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      subdomains: "abc",
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>'
     });
     tileLayer.on("tileerror", handleTileError);
     tileLayer.addTo(map);
@@ -245,6 +328,27 @@
       const icon = L.divIcon({ className: "", html: '<span class="risk-marker"></span>', iconSize: [13, 13], iconAnchor: [7, 7] });
       L.marker([risk.lat, risk.lon], { icon, title: local(risk.name) }).bindPopup(`<strong>${escapeHTML(local(risk.name))}</strong><br><span>${language === "tr" ? "Şematik araştırma alanı · kirlilik sınırı değildir." : "Illustrative research area · not a pollution boundary."}</span>`).addTo(markerLayer);
     });
+  }
+  function renderFishLocations(area = "all") {
+    const list = $("#fish-location-list");
+    if (list) {
+      const visible = fishLocations.filter(location => area === "all" || location.area === area);
+      list.innerHTML = visible.map(location => `<button type="button" class="fish-location-card" data-fish-location="${location.id}"><span><b>${escapeHTML(local(location.name))}</b><small>${escapeHTML(location.fishes.join(" · "))}</small></span><span aria-hidden="true">→</span></button>`).join("");
+      $$(".fish-location-card", list).forEach(card => card.addEventListener("click", () => focusFishLocation(card.dataset.fishLocation)));
+    }
+    if (!map || !fishMarkerLayer) return;
+    fishMarkerLayer.clearLayers();
+    fishLocations.filter(location => area === "all" || location.area === area).forEach(location => {
+      const icon = L.divIcon({ className: "fish-marker-wrap", html: '<span class="fish-marker" aria-hidden="true">🐟</span>', iconSize: [28, 28], iconAnchor: [14, 14] });
+      const fishNames = location.fishes.map(escapeHTML).join(" · ");
+      const popup = `<strong>${escapeHTML(local(location.name))}</strong><p class="fish-popup-species">${fishNames}</p><p>${escapeHTML(local(location.detail))}</p><small>${language === "tr" ? "Yaklaşık eğitim noktası; avlanma garantisi veya onaylı avlanma sınırı değildir." : "Approximate educational point; not a catch prediction or official fishing boundary."}</small><br><a href="${location.source}" target="_blank" rel="noreferrer">${language === "tr" ? "Resmî kaynak" : "Official source"}</a>`;
+      L.marker([location.lat, location.lon], { icon, title: local(location.name), alt: local(location.name), keyboard: true }).bindPopup(popup).on("click", () => { if (list) list.querySelector(`[data-fish-location="${location.id}"]`)?.focus({ preventScroll: true }); }).addTo(fishMarkerLayer);
+    });
+  }
+  function focusFishLocation(id) {
+    const location = fishLocations.find(item => item.id === id);
+    if (!location || !map) return;
+    map.flyTo([location.lat, location.lon], 10, { duration: .8 });
   }
   function renderRegions() {
     $("#region-chips").innerHTML = regions.map(region => `<button type="button" class="region-chip${region.id === selectedRegion.id ? " active" : ""}" data-region="${region.id}" aria-pressed="${region.id === selectedRegion.id}">${escapeHTML(local(region.name))}</button>`).join("");
@@ -333,7 +437,7 @@
   }
   function renderSavedCount() { $("#saved-count").textContent = saved.regions.length + saved.topics.length; }
   function renderSpecies() {
-    $("#species-grid").innerHTML = species.map((item, i) => `<article class="species-card"><div class="species-image" role="img" aria-label="${escapeHTML(local(item.name))}" style="background-image:url('https://images.unsplash.com/${item.img}?auto=format&fit=crop&w=640&q=75')"></div><div class="species-content"><h3>${escapeHTML(local(item.name))}</h3><em>${escapeHTML(item.scientific)}</em><br><span class="species-status">${escapeHTML(local(item.status))}</span><button class="species-detail text-button" data-species="${i}">${language === "tr" ? "Tür bilgisi →" : "Species details →"}</button></div></article>`).join("");
+    $("#species-grid").innerHTML = species.map((item, i) => `<article class="species-card"><img class="species-image" src="https://images.unsplash.com/${item.img}?auto=format&fit=crop&w=640&q=75" alt="${escapeHTML(local(item.name))}" loading="lazy"><div class="species-content"><h3>${escapeHTML(local(item.name))}</h3><em>${escapeHTML(item.scientific)}</em><br><span class="species-status">${escapeHTML(local(item.status))}</span><button class="species-detail text-button" data-species="${i}">${language === "tr" ? "Tür bilgisi →" : "Species details →"}</button></div></article>`).join("");
     $$(".species-detail").forEach(button => button.addEventListener("click", () => openSpecies(Number(button.dataset.species))));
   }
   function renderTopics() {
@@ -560,12 +664,13 @@
         const candidate = await deriveLocalPasswordHash(password, account.salt);
         if (candidate !== account.passwordHash) { message.textContent = language === "tr" ? "E-posta veya parola hatalı." : "Email or password is incorrect."; return; }
         saveLocalSession(account.email);
+        recordLegalConsent();
         message.textContent = localAccountNotice();
       } catch (error) { message.textContent = error.message; }
       return;
     }
     message.textContent = language === "tr" ? "Giriş yapılıyor…" : "Signing in…";
-    try { const session = await supabaseRequest("token?grant_type=password", { method: "POST", body: JSON.stringify({ email, password }) }); saveSession(session); loadLocalAccountLibrary(); message.textContent = language === "tr" ? "Giriş başarılı. Favorilerin yükleniyor." : "Signed in. Loading your saved list."; updateAccountUI(); await loadCloudLibrary(); }
+    try { const session = await supabaseRequest("token?grant_type=password", { method: "POST", body: JSON.stringify({ email, password }) });     saveSession(session); recordLegalConsent(); loadLocalAccountLibrary(); message.textContent = language === "tr" ? "Giriş başarılı. Favorilerin yükleniyor." : "Signed in. Loading your saved list."; updateAccountUI(); await loadCloudLibrary(); }
     catch (error) { message.textContent = error.message; }
   }
   async function handleSignUp(event) {
@@ -601,7 +706,7 @@
             : "Email confirmation appears to be disabled. Enable Confirm email in Supabase Authentication and configure the 6-digit code template.";
           return;
         }
-        saveSession(result); loadLocalAccountLibrary(); updateAccountUI(); await loadCloudLibrary();
+        saveSession(result); recordLegalConsent(); loadLocalAccountLibrary(); updateAccountUI(); await loadCloudLibrary();
         message.textContent = language === "tr" ? "Hesabın oluşturuldu ve e-postan doğrulandı." : "Your account is created and your email is verified.";
         return;
       }
@@ -612,7 +717,6 @@
       $("#account-otp").value = "";
       $("#account-otp").focus();
       message.textContent = language === "tr" ? `${email} adresine 6 haneli doğrulama kodu gönderildi.` : `A 6-digit verification code was sent to ${email}.`;
-    }
     } catch (error) { message.textContent = error.message; }
   }
   function openPasswordRecovery() {
@@ -716,7 +820,7 @@
       form.reset();
       $("#account-form").hidden = false;
       updateSignupMode(false);
-      saveSession(session); loadLocalAccountLibrary(); updateAccountUI();
+      saveSession(session); recordLegalConsent(); loadLocalAccountLibrary(); updateAccountUI();
       message.textContent = language === "tr" ? "E-posta doğrulandı. Hesabın açıldı." : "Email verified. You are signed in.";
       await loadCloudLibrary();
     } catch (error) { message.textContent = error.message; }
@@ -979,6 +1083,7 @@
     $("#account-verification").reset();
     $("#account-verification").hidden = true;
     $("#account-form").hidden = false;
+    $("#account-form").reset();
     $("#account-recovery").reset();
     $("#account-recovery").hidden = true;
     $("#recovery-code-fields").hidden = true;
@@ -1042,9 +1147,23 @@
     } catch (error) { console.error("Cloud library could not be loaded:", error); $("#account-message").textContent = language === "tr" ? "Hesap açıldı ancak liste sunucudan alınamadı. Yerel listen korunuyor." : "Signed in, but the saved list could not be loaded. Your local list is unchanged."; }
   }
   function wireEvents() {
+    document.addEventListener("click", event => {
+      const legalTrigger = event.target.closest("[data-legal]");
+      if (legalTrigger) { event.preventDefault(); openLegal(legalTrigger.dataset.legal); }
+    });
+    $("#privacy-accept").addEventListener("click", acknowledgePrivacyNotice);
     $("#mobile-menu-button").addEventListener("click", event => { const button = event.currentTarget, open = $("#main-nav").classList.toggle("open"); button.setAttribute("aria-expanded", String(open)); });
     $$("#main-nav a").forEach(link => link.addEventListener("click", () => $("#main-nav").classList.remove("open")));
     $("#language-switch").addEventListener("click", () => setLanguage(language === "tr" ? "en" : "tr"));
+    $("#fish-area-filter").addEventListener("change", event => renderFishLocations(event.currentTarget.value));
+    $("#action-start").addEventListener("click", event => {
+      event.preventDefault();
+      const target = $("#stories");
+      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      history.replaceState(null, "", "#stories");
+      target.setAttribute("tabindex", "-1");
+      target.focus({ preventScroll: true });
+    });
     $("#profile-language").addEventListener("change", event => setLanguage(event.currentTarget.value));
     $("#profile-avatar-file").addEventListener("change", event => {
       const file = event.currentTarget.files?.[0];
@@ -1079,7 +1198,11 @@
     $("#assistant-form").addEventListener("submit", event => { event.preventDefault(); const question = $("#assistant-question").value.trim(); if (question) askResearch(question); });
     $("#open-assistant").addEventListener("click", () => openAssistant());
     $$("[data-question]").forEach(button => button.addEventListener("click", () => openAssistant(button.dataset.question)));
-    $("#account-button").addEventListener("click", () => { updateAccountUI(); $("#account-dialog").showModal(); });
+    $("#account-button").addEventListener("click", () => {
+      updateAccountUI();
+      const dialog = $("#account-dialog");
+      if (!dialog.open) dialog.showModal();
+    });
     $("#forgot-password").addEventListener("click", openPasswordRecovery);
     $("#account-recovery").addEventListener("submit", handlePasswordRecovery);
     $("#cancel-recovery").addEventListener("click", closePasswordRecovery);
@@ -1094,6 +1217,7 @@
   }
   function init() {
     if (currentAccount()) loadLocalAccountLibrary();
+    initPrivacyNotice();
     $("#year").textContent = new Date().getFullYear(); setupAccountDrawer(); wireEvents(); renderRegions(); renderSpecies(); renderTopics(); updateRegionPanel(); renderSavedCount(); updateAccountUI();
     $$("[data-i18n]").forEach(element => {
       const value = translations[language]?.[element.dataset.i18n] || accountTranslations[language]?.[element.dataset.i18n];
@@ -1106,7 +1230,7 @@
     $("#language-switch").textContent = language === "tr" ? "EN" : "TR";
     $("#profile-language").value = language;
     if (language === "en") setLanguage("en");
-    initMap(); loadMarineData();
+    initMap(); renderFishLocations(); loadMarineData();
     window.setInterval(() => {
       if (document.visibilityState === "visible" && Date.now() - lastMarineRefreshAt >= 60 * 60 * 1000) loadMarineData();
     }, 60 * 1000);

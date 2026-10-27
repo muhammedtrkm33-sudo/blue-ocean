@@ -1421,3 +1421,187 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+.species-image {
+  width: 100%;
+  height: 210px;
+  display: block;
+  object-fit: cover;
+}
+
+.auth-consent {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+  margin: 16px 0 2px;
+  color: #456676;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.auth-consent input {
+  width: 18px;
+  height: 18px;
+  margin: 1px 0 0;
+  accent-color: #087da0;
+}
+
+.auth-consent button,
+.footer-links button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #087da0;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.footer-links button {
+  color: #d2e0e5;
+}
+
+.footer-links {
+  flex-wrap: wrap;
+}
+
+.legal-dialog {
+  width: min(760px, calc(100vw - 32px));
+  max-height: min(820px, calc(100dvh - 32px));
+}
+
+.legal-content {
+  max-width: 680px;
+}
+
+.legal-content h2 {
+  margin-bottom: 8px;
+}
+
+.legal-effective {
+  margin: 0 0 24px;
+  color: #087da0;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.legal-content h3 {
+  margin: 22px 0 7px;
+  color: #17384c;
+  font-size: 15px;
+}
+
+.legal-content p {
+  margin: 0;
+  color: #456676;
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+.privacy-banner {
+  position: fixed;
+  z-index: 1050;
+  right: 20px;
+  bottom: 20px;
+  width: min(520px, calc(100vw - 40px));
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: end;
+  padding: 16px 18px;
+  border: 1px solid #cbdde4;
+  border-radius: 3px;
+  background: #fff;
+  color: #17384c;
+  box-shadow: 0 14px 45px rgb(11 34 49 / 24%);
+}
+
+.privacy-banner strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+.privacy-banner p {
+  margin: 0;
+  color: #617987;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.privacy-banner-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.privacy-banner-actions #privacy-details {
+  border: 0;
+  background: transparent;
+  color: #087da0;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.privacy-banner-actions .button {
+  min-height: 36px;
+  padding: 7px 12px;
+}
+
+@media (max-width: 620px) {
+  .privacy-banner {
+    right: 12px;
+    bottom: 12px;
+    width: calc(100vw - 24px);
+    grid-template-columns: 1fr;
+  }
+
+  .privacy-banner-actions {
+    justify-content: flex-end;
+  }
+}
+
+html { scroll-behavior: smooth; }
+
+.fish-location-panel {
+  margin-top: 28px;
+  padding: 28px;
+  border: 1px solid #d8e5e8;
+  background: #f7fbfb;
+}
+
+.fish-location-heading,
+.fish-location-controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
+  justify-content: space-between;
+}
+
+.fish-location-heading h3 { margin: 8px 0 0; color: #123247; font-size: 27px; }
+.fish-location-heading > p { max-width: 480px; margin: 0 0 2px; color: #4f6873; }
+.fish-location-controls { align-items: center; margin-top: 20px; }
+.fish-location-controls label { color: #123247; font-weight: 700; }
+.fish-location-controls select { min-width: 180px; margin-left: -16px; padding: 10px 34px 10px 12px; border: 1px solid #aac6ce; border-radius: 4px; background: #fff; }
+.fish-location-controls small { max-width: 450px; color: #647983; }
+.fish-location-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 20px; }
+.fish-location-card { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 72px; padding: 12px 15px; border: 1px solid #d6e4e7; background: #fff; text-align: left; color: #123247; cursor: pointer; }
+.fish-location-card span:first-child { display: grid; gap: 5px; }
+.fish-location-card b { font-size: 15px; }
+.fish-location-card small { color: #607782; }
+.fish-location-card:hover,
+.fish-location-card:focus-visible { border-color: #087da0; box-shadow: 0 0 0 2px #087da033; }
+.fish-marker-wrap { background: transparent; border: 0; }
+.fish-marker { display: grid; width: 28px; height: 28px; place-items: center; border: 2px solid #fff; border-radius: 50%; background: #087da0; box-shadow: 0 3px 10px #12324755; font-size: 15px; }
+.fish-popup-species { color: #087da0; font-weight: 700; }
+
+@media (max-width: 760px) {
+  .fish-location-panel { padding: 22px 18px; }
+  .fish-location-heading,
+  .fish-location-controls { align-items: flex-start; flex-direction: column; gap: 12px; }
+  .fish-location-controls select { width: 100%; margin-left: 0; }
+  .fish-location-list { grid-template-columns: 1fr; }
+}
