@@ -40,7 +40,7 @@ Vercel ortam değişkenlerini [.env.example](./.env.example) örneğine göre **
 
 ### Gerçek kullanıcı üyeliği (isteğe bağlı Supabase)
 
-Supabase Dashboard'da **Authentication → Providers → Email** bölümünden e-posta sağlayıcısını ve **Confirm email** seçeneğini etkinleştirin. **Authentication → Email Templates → Confirm signup** şablonunda, e-postaya bağlantı yerine altı haneli kod göndermek için `{{ .Token }}` değişkenini kullanın; **Authentication → Settings** bölümünde OTP uzunluğunu `6` olarak ayarlayın. Sitenin kayıt formu bu kodu alır ve Supabase Auth üzerinden doğrular.
+Supabase Dashboard'da **Authentication → Providers → Email** bölümünden e-posta sağlayıcısını ve **Confirm email** seçeneğini etkinleştirin. **Authentication → Email Templates → Confirm signup** şablonunda, e-postaya bağlantı yerine altı haneli kod göndermek için `{{ .Token }}` değişkenini kullanın; **Authentication → Settings** bölümünde OTP uzunluğunu `6` olarak ayarlayın. Aynı şekilde **Reset Password** e-posta şablonunu da `{{ .Token }}` kodunu gönderecek biçimde ayarlayın. OTP uzunluğunu `6` olarak belirleyince parola kurtarma kodu da altı haneli gelir. Sitenin kayıt formu bu kodu alır ve Supabase Auth üzerinden doğrular.
 
 Supabase Dashboard'daki **Project URL** ve **anon/public** anahtarını `config.js` içindeki `supabaseUrl` ve `supabaseAnonKey` alanlarına girip değişikliği GitHub'a gönderin. Bunlar tarayıcıda kullanılmak üzere tasarlanmış public değerlerdir; erişimi RLS ve Auth politikaları denetler. `service_role` anahtarını asla `config.js` dosyasına veya tarayıcıya koymayın. Bu ön yüz ayarları Render statik dağıtımında çalışır; ayrıca Render Environment Variables girmeniz gerekmez. Supabase SQL Editor'de önce `supabase-setup.sql`, sonra `community-submissions.sql` dosyalarının içeriğini çalıştırın. İlki kişisel araştırma listesini; ikincisi ziyaretçilerin fikir, istek ve şikâyetlerini güvenli biçimde ekleyebileceği tabloyu ve RLS ekleme politikasını kurar.
 
@@ -52,13 +52,15 @@ Supabase ayarlı değilse e-posta doğrulamalı yeni kayıt oluşturulmaz; Supab
 
 Supabase Auth parolaları doğrular; yerel profilde yalnızca türetilmiş hash tutulur. API anahtarı hiçbir zaman tarayıcıya gönderilmez. Supabase tablo şemasını değiştirirseniz proje API şeması önbelleğini yenileyin.
 
+Kayıt akışında ad-soyad istenir ve Supabase kullanıcı metadata'sında saklanır. Başarılı giriş/kayıt sonrası hesap düğmesi **Profilim** olur; sağdan açılan çekmecede profil, site bağlantısı ve ayarlar bulunur. Profil fotoğrafı bu tarayıcı/cihazda saklanır; diğer cihazlara yüklenmez. Ayarlardaki mevcut dil seçenekleri Türkçe ve İngilizcedir. Tüm dünya dillerinde otomatik çeviri için ayrıca bir çeviri sağlayıcısı ve sunucu taraflı API anahtarı gerekir; çeviri servisi eklenmeden desteklenmeyen diller sunulmaz.
+
 ### GitHub Pages
 
 GitHub'da yeni bir depoya `main` dalını gönderip **Settings → Pages → Source: GitHub Actions** seçin. `.github/workflows/deploy-pages.yml` dosyası statik dosyaları otomatik yayınlar. Harita ve Open-Meteo Marine API özellikleri çalışır; GitHub Pages statik olduğu için `api/research.js` sunucu işlevini çalıştırmaz. Claude AI asistanı için `ANTHROPIC_API_KEY` gizli anahtarı ile Vercel gibi bir sunucu işlevi destekleyen dağıtım kullanın.
 
 ## Veri doğruluğu ve kaynaklar
 
-- **Deniz suyu yüzey sıcaklığı ve dalga yüksekliği:** Open-Meteo Marine API. Arayüz mevcut değerleri *model tahmini* olarak etiketler, birim ve API yanıt zamanını gösterir. Bu değerler istasyon ölçümü veya kirlilik ölçümü değildir. Bazı konum veya modeller için alanlar eksik olabilir.
+- **Deniz suyu yüzey sıcaklığı ve dalga yüksekliği:** Open-Meteo Marine API. Arayüz mevcut değerleri *model tahmini* olarak etiketler, birim ve API yanıt zamanını gösterir. Sayfa açıkken tahmin yanıtı saatlik yenilenir; arka planda bekleyen sekme görünür olduğunda yenileme zamanı geçmişse yeniden istenir. Bu değerler istasyon ölçümü veya kirlilik ölçümü değildir. Bazı konum veya modeller için alanlar eksik olabilir. Yayımlanmış araştırma tahminleri ve kaynak metinleri saatlik canlı veri değildir.
 - Araştırma asistanına güncel deniz sıcaklığı veya dalga tahmini sorulduğunda, mevcut Open-Meteo yanıtından değerleri ve tahmin zamanını gösterir. Bu yanıt API verisidir; istasyon ölçümü veya Claude tarafından üretilen yanıt değildir. Diğer araştırma sorularında yapılandırılmış Claude API'si yoksa kaynak rehberi kullanılır.
 - **Harita:** Esri okyanus altlığı önceliklidir; Esri yanıt vermezse OpenStreetMap verisini kullanan CARTO koyu haritasına geçilir. Her iki sağlayıcı başarısız olursa 13 deniz/okyanus bölgesi için seçim listesi kullanılabilir; bunlara Afrika kıyılarındaki Gine Körfezi de dahildir. Katkıcı/sağlayıcı atıfları harita üzerinde görünür. Haritadaki atık birikimi ve araştırma noktaları yaklaşık, bilgilendirme amaçlı konumlardır; kirlilik sınırı veya gerçek zamanlı sensör değildir.
 - **Okyanus seviyesi:** NASA Sea Level Project bağlantısı. Uygulamada canlı deniz seviyesi değeri iddia edilmez.

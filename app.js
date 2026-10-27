@@ -61,6 +61,58 @@
       assistantEyebrow: "OCEAN RESEARCH GUIDE", assistantTitle: "Ask a question.<br><span>Explore the evidence.</span>", assistantCopy: "Sea-temperature and wave questions use Open-Meteo model forecasts when available. Other research questions use Claude when the protected server API is configured, or the clearly labelled source guide.", assistantLabel: "What would you like to know about the sea?", assistantPlaceholder: "E.g. What are the main environmental pressures on the Sea of Marmara?", assistantAsk: "Explore", accountEyebrow: "PERSONAL RESEARCH SPACE", accountTitle: "Save what you <span>discover.</span>", accountCopy: "With Supabase configured, a verification code is sent to your email. Email verification is unavailable until the project is configured.", emailLabel: "Email", passwordLabel: "Password", passwordHint: "(8–128 characters)", signIn: "Sign in", signUp: "Create account", signOut: "Sign out", verificationCodeLabel: "Email verification code", verificationCodeHint: "Enter the 6-digit code sent to your email.", verifyEmail: "Verify email", resendCode: "Resend code", changeEmail: "Change email", accountSections: "Explore the site", drawerTitle: "Explore BLUE OCEAN", drawerCopy: "Choose a section to continue exploring.", feedbackLinksTitle: "Make a difference", feedbackIdeas: "Share an idea or project", feedbackRequests: "Requests and complaints", feedbackDialogEyebrow: "YOUR VOICE FOR THE OCEAN", feedbackTitle: "Share what you have in mind.", feedbackIntro: "Share an idea, project, request or complaint about protecting our waters and seas.", feedbackTypeLabel: "What would you like to share?", feedbackIdeaOption: "Idea or project", feedbackRequestOption: "Request", feedbackComplaintOption: "Complaint", feedbackNameLabel: "Your name (optional)", feedbackNamed: "I would like to include my name", feedbackAnonymous: "I prefer not to share my name", feedbackFullNameLabel: "First and last name", feedbackMessageLabel: "Your idea, request or complaint", feedbackMessagePlaceholder: "Write your idea, project, request or complaint here…", feedbackPrivacy: "Please do not include passwords, financial details or other sensitive personal information.", feedbackSubmit: "Send", feedbackSending: "Sending…", feedbackSent: "Thank you. Your submission has been received.", feedbackMissingConfig: "Submissions are not connected yet. Please try again later.", feedbackError: "Your submission could not be sent. Please try again later."
     }
   };
+  const accountTranslations = {
+    tr: {
+      account: "Hesabım",
+      signUp: "Hesap oluştur",
+      profileEyebrow: "HESABIM",
+      profileButton: "Profilim",
+      visitSite: "Siteyi ziyaret et",
+      profilePhotoNote: "Fotoğrafın bu cihazda saklanır.",
+      settingsTitle: "Ayarlar",
+      languageLabel: "Site dili",
+      fullNameLabel: "Ad soyad",
+      forgotPassword: "Şifremi unuttum",
+      recoveryCodeLabel: "E-posta kurtarma kodu",
+      recoveryCodeHint: "E-postana gelen 6 haneli kodu gir.",
+      newPasswordLabel: "Yeni parola",
+      sendRecoveryCode: "Kurtarma kodu gönder",
+      updatePassword: "Yeni parolayı kaydet",
+      backToSignIn: "Girişe dön",
+      signupAction: "Kayıt ol",
+      signIn: "Giriş yap",
+      profileNameFallback: "BLUE OCEAN üyesi",
+      recoverySent: "6 haneli kurtarma kodu e-posta adresine gönderildi.",
+      recoveryUpdated: "Parolan güncellendi. Giriş yaptın.",
+      recoveryUnavailable: "Şifre kurtarma için önce Supabase ayarlarını tamamla.",
+      recoveryFailed: "Kurtarma isteği tamamlanamadı. E-posta adresini ve kodu kontrol et."
+    },
+    en: {
+      account: "My account",
+      signUp: "Create account",
+      profileEyebrow: "MY PROFILE",
+      profileButton: "My profile",
+      visitSite: "Visit the site",
+      profilePhotoNote: "Your photo is stored on this device.",
+      settingsTitle: "Settings",
+      languageLabel: "Site language",
+      fullNameLabel: "Full name",
+      forgotPassword: "Forgot password?",
+      recoveryCodeLabel: "Email recovery code",
+      recoveryCodeHint: "Enter the 6-digit code sent to your email.",
+      newPasswordLabel: "New password",
+      sendRecoveryCode: "Send recovery code",
+      updatePassword: "Save new password",
+      backToSignIn: "Back to sign in",
+      signupAction: "Sign up",
+      signIn: "Sign in",
+      profileNameFallback: "BLUE OCEAN member",
+      recoverySent: "A 6-digit recovery code was sent to your email.",
+      recoveryUpdated: "Your password was updated and you are signed in.",
+      recoveryUnavailable: "Configure Supabase before using password recovery.",
+      recoveryFailed: "Password recovery failed. Check your email and code."
+    }
+  };
   Object.assign(translations.en, {
     navImpact: "Impact & action",
     impactUnitMillionTonnes: "Mt / year",
@@ -72,6 +124,8 @@
   });
   let language = localStorage.getItem("bo-language") === "en" ? "en" : "tr";
   let pendingVerificationEmail = "";
+  let signupMode = false;
+  let recoveryCodeSent = false;
   let selectedRegion = regions[0];
   let liveData = null;
   let map = null;
@@ -81,12 +135,14 @@
   let usingAlternateTiles = false;
   let toastTimer = null;
   let marineController = null;
+  let lastMarineRefreshAt = 0;
   let saved = readJSON("bo-saved", { regions: [], topics: [] });
   const userLibrary = readJSON("bo-library", { favorites: [], lists: [] });
   const $ = (selector, parent = document) => parent.querySelector(selector);
   const $$ = (selector, parent = document) => [...parent.querySelectorAll(selector)];
   const text = (key) => {
     if (language === "en" && translations.en[key]) return translations.en[key];
+    if (accountTranslations[language]?.[key]) return accountTranslations[language][key];
     const turkish = {
       feedbackSubmit: "Gönder",
       feedbackSending: "Gönderiliyor…",
@@ -102,9 +158,9 @@
   function notify(message) { const toast = $("#toast"); toast.textContent = message; toast.classList.add("show"); clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove("show"), 2600); }
   function setLanguage(next) {
     language = next; localStorage.setItem("bo-language", language); document.documentElement.lang = language; document.title = language === "tr" ? "BLUE OCEAN — Denizleri Anla, Geleceği Koru" : "BLUE OCEAN — Understand the Sea, Protect Our Future";
-    $$("[data-i18n]").forEach(el => { const value = translations[language]?.[el.dataset.i18n]; if (value) el.innerHTML = value; });
-    $$("[data-i18n-placeholder]").forEach(el => { const value = translations[language]?.[el.dataset.i18nPlaceholder]; if (value) el.placeholder = value; });
-    $("#language-switch").textContent = language === "tr" ? "EN" : "TR"; renderRegions(); renderSpecies(); renderTopics(); updateRegionPanel(); renderChart(); renderSavedCount(); if (map) refreshMarkers(); if (!$("#map-fallback").hidden) $("#map-reset").textContent = language === "tr" ? "Haritayı yeniden dene ↻" : "Retry map ↻";
+    $$("[data-i18n]").forEach(el => { const value = translations[language]?.[el.dataset.i18n] || accountTranslations[language]?.[el.dataset.i18n]; if (value) el.innerHTML = value; });
+    $$("[data-i18n-placeholder]").forEach(el => { const value = translations[language]?.[el.dataset.i18nPlaceholder] || accountTranslations[language]?.[el.dataset.i18nPlaceholder]; if (value) el.placeholder = value; });
+    $("#language-switch").textContent = language === "tr" ? "EN" : "TR"; $("#profile-language").value = language; renderRegions(); renderSpecies(); renderTopics(); updateRegionPanel(); renderChart(); renderSavedCount(); updateAccountUI(); if (map) refreshMarkers(); if (!$("#map-fallback").hidden) $("#map-reset").textContent = language === "tr" ? "Haritayı yeniden dene ↻" : "Retry map ↻";
   }
   function initMap() {
     if (!window.L || !$("#ocean-map")) { showMapFallback(); return; }
@@ -206,6 +262,7 @@
   }
   async function loadMarineData() {
     if (marineController) marineController.abort(); marineController = new AbortController();
+    lastMarineRefreshAt = Date.now();
     $("#wave-value").textContent = "—"; $("#temp-value").textContent = "—"; $("#wave-time").textContent = language === "tr" ? "Veri yükleniyor" : "Loading data"; $("#temp-time").textContent = language === "tr" ? "Veri yükleniyor" : "Loading data";
     $("#chart-updated").textContent = text("loadingData"); $("#chart-current").textContent = "—"; liveData = null; renderChart();
     const url = `https://marine-api.open-meteo.com/v1/marine?latitude=${selectedRegion.lat}&longitude=${selectedRegion.lon}&hourly=wave_height,sea_surface_temperature&forecast_days=7&past_days=7&timezone=UTC`;
@@ -451,6 +508,20 @@
     return session?.localOnly === true && typeof session.user?.id === "string" && typeof session.user?.email === "string" ? session : null;
   }
   function currentAccount() { return currentSession() || currentLocalSession(); }
+  function accountDisplayName(account = currentAccount()) {
+    const user = account?.user;
+    const fullName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.full_name;
+    if (typeof fullName === "string" && fullName.trim()) return fullName.trim();
+    return user?.email?.split("@")[0] || text("profileNameFallback");
+  }
+  function updateSignupMode(enabled) {
+    signupMode = enabled;
+    $("#account-name-field").hidden = !enabled;
+    $("#account-name").required = enabled;
+    $("#account-password").autocomplete = enabled ? "new-password" : "current-password";
+    $("#sign-up-button").textContent = text(enabled ? "signupAction" : "signUp");
+    $("#forgot-password").hidden = enabled;
+  }
   function libraryStorageKey() { const userId = currentAccount()?.user?.id; return userId ? `bo-saved-${userId}` : "bo-saved"; }
   function persistSaved() { localStorage.setItem(libraryStorageKey(), JSON.stringify(saved)); }
   function loadLocalAccountLibrary() { saved = readJSON(libraryStorageKey(), { regions: [], topics: [] }); renderSavedCount(); updateRegionPanel(); }
@@ -480,6 +551,7 @@
   }
   async function handleSignIn(event) {
     event.preventDefault(); const message = $("#account-message"), email = $("#account-email").value.trim(), password = $("#account-password").value;
+    updateSignupMode(false);
     if (!authConfigReady()) {
       const account = localAccounts().find(item => item.email === email.toLocaleLowerCase("en-US"));
       if (!account) { message.textContent = language === "tr" ? "Bu tarayıcıda bu e-posta için yerel profil bulunamadı." : "No local profile for this email was found in this browser."; return; }
@@ -499,7 +571,18 @@
   async function handleSignUp(event) {
     const message = $("#account-message"), email = $("#account-email").value.trim(), password = $("#account-password").value;
     event?.preventDefault();
+    if (!signupMode) {
+      updateSignupMode(true);
+      $("#account-name").focus();
+      return;
+    }
     if (!$("#account-form").reportValidity()) return;
+    const fullName = $("#account-name").value.trim();
+    if (!fullName) {
+      $("#account-message").textContent = language === "tr" ? "Ad soyad alanını doldur." : "Enter your full name.";
+      $("#account-name").focus();
+      return;
+    }
     if (password.length < 8 || password.length > 128) { message.textContent = language === "tr" ? "Parola 8–128 karakter arasında olmalıdır." : "Password must be 8–128 characters."; return; }
     if (!authConfigReady()) {
       message.textContent = language === "tr"
@@ -509,7 +592,7 @@
     }
     message.textContent = language === "tr" ? "Hesap oluşturuluyor…" : "Creating account…";
     try {
-      const result = await supabaseRequest("signup", { method: "POST", body: JSON.stringify({ email, password }) });
+      const result = await supabaseRequest("signup", { method: "POST", body: JSON.stringify({ email, password, data: { full_name: fullName } }) });
       if (result.access_token) {
         if (!result.user?.email_confirmed_at && !result.user?.confirmed_at) {
           localStorage.removeItem("bo-session");
@@ -530,7 +613,91 @@
       $("#account-otp").focus();
       message.textContent = language === "tr" ? `${email} adresine 6 haneli doğrulama kodu gönderildi.` : `A 6-digit verification code was sent to ${email}.`;
     }
-    catch (error) { message.textContent = error.message; }
+    } catch (error) { message.textContent = error.message; }
+  }
+  function openPasswordRecovery() {
+    if (!authConfigReady()) {
+      $("#account-message").textContent = text("recoveryUnavailable");
+      return;
+    }
+    $("#account-form").hidden = true;
+    $("#account-verification").hidden = true;
+    $("#account-recovery").hidden = false;
+    $("#recovery-email").value = $("#account-email").value.trim();
+    $("#recovery-code-fields").hidden = true;
+    $("#recovery-otp").required = false;
+    $("#recovery-password").required = false;
+    $("#recovery-submit").textContent = text("sendRecoveryCode");
+    recoveryCodeSent = false;
+    $("#account-message").textContent = "";
+    $("#recovery-email").focus();
+  }
+  function closePasswordRecovery() {
+    $("#account-recovery").reset();
+    $("#account-recovery").hidden = true;
+    $("#account-form").hidden = false;
+    recoveryCodeSent = false;
+    $("#account-message").textContent = "";
+    updateSignupMode(false);
+    $("#account-email").focus();
+  }
+  async function handlePasswordRecovery(event) {
+    event.preventDefault();
+    const form = $("#account-recovery");
+    const message = $("#account-message");
+    if (!authConfigReady()) {
+      message.textContent = text("recoveryUnavailable");
+      return;
+    }
+    if (!recoveryCodeSent) {
+      if (!$("#recovery-email").reportValidity()) return;
+      message.textContent = language === "tr" ? "Kurtarma kodu gönderiliyor…" : "Sending recovery code…";
+      try {
+        await supabaseRequest("recover", { method: "POST", body: JSON.stringify({ email: $("#recovery-email").value.trim() }) });
+        recoveryCodeSent = true;
+        $("#recovery-code-fields").hidden = false;
+        $("#recovery-otp").required = true;
+        $("#recovery-password").required = true;
+        $("#recovery-submit").textContent = text("updatePassword");
+        message.textContent = text("recoverySent");
+        $("#recovery-otp").focus();
+      } catch (error) {
+        console.error("Password recovery code could not be sent:", error);
+        message.textContent = error.message || text("recoveryFailed");
+      }
+      return;
+    }
+    if (!form.reportValidity()) return;
+    const email = $("#recovery-email").value.trim();
+    const token = $("#recovery-otp").value.trim();
+    const password = $("#recovery-password").value;
+    if (!/^\d{6}$/.test(token)) {
+      message.textContent = language === "tr" ? "Kurtarma kodu 6 rakamdan oluşmalıdır." : "The recovery code must contain 6 digits.";
+      return;
+    }
+    message.textContent = language === "tr" ? "Yeni parola kaydediliyor…" : "Saving new password…";
+    try {
+      const session = await supabaseRequest("verify", { method: "POST", body: JSON.stringify({ type: "recovery", email, token }) });
+      if (!session.access_token) throw new Error(language === "tr" ? "Kod doğrulandı ancak oturum açılamadı." : "The code was verified, but a session could not be started.");
+      await supabaseRequest("user", {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ password })
+      });
+      saveSession(session);
+      form.reset();
+      form.hidden = true;
+      $("#recovery-code-fields").hidden = true;
+      $("#account-form").hidden = false;
+      recoveryCodeSent = false;
+      updateAccountUI();
+      loadLocalAccountLibrary();
+      message.textContent = text("recoveryUpdated");
+      await loadCloudLibrary();
+    } catch (error) {
+      console.error("Password recovery failed:", error);
+      message.textContent = error.message || text("recoveryFailed");
+    }
   }
   async function verifySignupEmail(event) {
     event.preventDefault();
@@ -548,6 +715,7 @@
       form.hidden = true;
       form.reset();
       $("#account-form").hidden = false;
+      updateSignupMode(false);
       saveSession(session); loadLocalAccountLibrary(); updateAccountUI();
       message.textContent = language === "tr" ? "E-posta doğrulandı. Hesabın açıldı." : "Email verified. You are signed in.";
       await loadCloudLibrary();
@@ -567,6 +735,7 @@
     $("#account-verification").reset();
     $("#account-verification").hidden = true;
     $("#account-form").hidden = false;
+    updateSignupMode(false);
     $("#account-message").textContent = "";
     $("#account-email").focus();
   }
@@ -810,12 +979,34 @@
     $("#account-verification").reset();
     $("#account-verification").hidden = true;
     $("#account-form").hidden = false;
+    $("#account-recovery").reset();
+    $("#account-recovery").hidden = true;
+    $("#recovery-code-fields").hidden = true;
+    updateSignupMode(false);
+    recoveryCodeSent = false;
     saved = readJSON("bo-saved", { regions: [], topics: [] });
     updateAccountUI(); renderSavedCount(); updateRegionPanel();
     $("#account-message").textContent = language === "tr" ? "Çıkış yapıldı." : "Signed out.";
   }
   function updateAccountUI() {
     const account = currentAccount();
+    const isSignedIn = !!account;
+    const displayName = accountDisplayName(account);
+    const initials = displayName.split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]).join("").toLocaleUpperCase(language === "tr" ? "tr-TR" : "en");
+    $("#account-profile").hidden = !isSignedIn;
+    $("#account-auth").hidden = isSignedIn;
+    $("#account-dialog").classList.toggle("profile-drawer", isSignedIn);
+    $("#profile-name").textContent = displayName;
+    $("#profile-email").textContent = account?.user?.email || "";
+    $("#profile-avatar").textContent = initials || "BO";
+    const avatarImage = $("#profile-avatar-image");
+    const savedAvatar = account?.user?.id ? localStorage.getItem(`bo-avatar-${account.user.id}`) : null;
+    avatarImage.hidden = !savedAvatar;
+    if (savedAvatar) avatarImage.src = savedAvatar;
+    $("#account-button").dataset.i18n = isSignedIn ? "profileButton" : "account";
+    $("#account-button").innerHTML = `${text(isSignedIn ? "profileButton" : "account")} <span aria-hidden="true">↗</span>`;
+    $("#profile-language").value = language;
+    $("#language-switch").textContent = language === "tr" ? "EN" : "TR";
     $("#sign-out-button").hidden = !account;
     $("#sign-in-button").disabled = !!account;
     $("#sign-up-button").disabled = !!account;
@@ -854,6 +1045,33 @@
     $("#mobile-menu-button").addEventListener("click", event => { const button = event.currentTarget, open = $("#main-nav").classList.toggle("open"); button.setAttribute("aria-expanded", String(open)); });
     $$("#main-nav a").forEach(link => link.addEventListener("click", () => $("#main-nav").classList.remove("open")));
     $("#language-switch").addEventListener("click", () => setLanguage(language === "tr" ? "en" : "tr"));
+    $("#profile-language").addEventListener("change", event => setLanguage(event.currentTarget.value));
+    $("#profile-avatar-file").addEventListener("change", event => {
+      const file = event.currentTarget.files?.[0];
+      const account = currentAccount();
+      if (!file || !account?.user?.id) return;
+      if (!/^image\/(jpeg|png|webp)$/.test(file.type) || file.size > 1024 * 1024) {
+        $("#account-message").textContent = language === "tr" ? "JPG, PNG veya WebP biçiminde, en fazla 1 MB boyutunda bir fotoğraf seç." : "Choose a JPG, PNG or WebP image up to 1 MB.";
+        event.currentTarget.value = "";
+        return;
+      }
+      const reader = new FileReader();
+      reader.addEventListener("load", () => {
+        if (typeof reader.result !== "string") return;
+        try {
+          localStorage.setItem(`bo-avatar-${account.user.id}`, reader.result);
+          updateAccountUI();
+          $("#account-message").textContent = language === "tr" ? "Profil fotoğrafın bu cihaza kaydedildi." : "Your profile photo was saved on this device.";
+        } catch (error) {
+          console.error("Profile photo could not be stored:", error);
+          $("#account-message").textContent = language === "tr" ? "Fotoğraf tarayıcıya kaydedilemedi. Daha küçük bir dosya seç." : "The photo could not be saved in this browser. Choose a smaller file.";
+        }
+      });
+      reader.addEventListener("error", () => {
+        $("#account-message").textContent = language === "tr" ? "Fotoğraf okunamadı. Başka bir dosya dene." : "The photo could not be read. Try another file.";
+      });
+      reader.readAsDataURL(file);
+    });
     $("#save-region").addEventListener("click", toggleSaved); $("#map-reset").addEventListener("click", () => { if (!$("#map-fallback").hidden) retryMap(); else if (map) map.flyTo([20, 0], 2, { duration: .7 }); });
     $("#region-details").addEventListener("click", openRegionDetails); $("#chart-metric").addEventListener("change", renderChart); $("#chart-period").addEventListener("change", renderChart); $("#download-data").addEventListener("click", downloadCSV); $("#create-report").addEventListener("click", createReport);
     $$(".impact-region-link").forEach(link => link.addEventListener("click", event => selectRegion(event.currentTarget.dataset.region)));
@@ -862,9 +1080,14 @@
     $("#open-assistant").addEventListener("click", () => openAssistant());
     $$("[data-question]").forEach(button => button.addEventListener("click", () => openAssistant(button.dataset.question)));
     $("#account-button").addEventListener("click", () => { updateAccountUI(); $("#account-dialog").showModal(); });
+    $("#forgot-password").addEventListener("click", openPasswordRecovery);
+    $("#account-recovery").addEventListener("submit", handlePasswordRecovery);
+    $("#cancel-recovery").addEventListener("click", closePasswordRecovery);
+    $("#recovery-otp").addEventListener("input", event => { event.currentTarget.value = event.currentTarget.value.replace(/\D/g, "").slice(0, 6); });
+    $("#profile-visit-link").addEventListener("click", () => $("#account-dialog").close());
     $("#feedback-form").addEventListener("submit", submitFeedback);
     $$('input[name="feedback-name-choice"]').forEach(input => input.addEventListener("change", updateFeedbackNameField));
-    $("#account-form").addEventListener("submit", handleSignIn); $("#sign-up-button").addEventListener("click", handleSignUp); $("#account-verification").addEventListener("submit", verifySignupEmail); $("#resend-code").addEventListener("click", resendSignupCode); $("#change-email").addEventListener("click", changeSignupEmail); $("#account-otp").addEventListener("input", event => { event.currentTarget.value = event.currentTarget.value.replace(/\D/g, "").slice(0, 6); }); $("#sign-out-button").addEventListener("click", signOut);
+    $("#account-form").addEventListener("submit", event => signupMode ? handleSignUp(event) : handleSignIn(event)); $("#sign-up-button").addEventListener("click", handleSignUp); $("#account-verification").addEventListener("submit", verifySignupEmail); $("#resend-code").addEventListener("click", resendSignupCode); $("#change-email").addEventListener("click", changeSignupEmail); $("#account-otp").addEventListener("input", event => { event.currentTarget.value = event.currentTarget.value.replace(/\D/g, "").slice(0, 6); }); $("#sign-out-button").addEventListener("click", signOut);
     $$("[data-close-dialog]").forEach(button => button.addEventListener("click", () => button.closest("dialog").close()));
     $$("dialog").forEach(dialog => { dialog.addEventListener("click", event => { if (event.target === dialog) dialog.close(); }); });
     $("#detail-dialog").addEventListener("click", event => { const item = event.target.closest(".saved-item"); if (item) { $("#detail-dialog").close(); if (item.dataset.region) selectRegion(item.dataset.region); else if (item.dataset.regionDetail) { selectRegion(item.dataset.regionDetail); openRegionDetails(); } else if (item.dataset.species !== undefined) openSpecies(Number(item.dataset.species)); else if (item.dataset.topic) openTopic(item.dataset.topic); } });
@@ -873,17 +1096,25 @@
     if (currentAccount()) loadLocalAccountLibrary();
     $("#year").textContent = new Date().getFullYear(); setupAccountDrawer(); wireEvents(); renderRegions(); renderSpecies(); renderTopics(); updateRegionPanel(); renderSavedCount(); updateAccountUI();
     $$("[data-i18n]").forEach(element => {
-      const value = translations[language]?.[element.dataset.i18n];
+      const value = translations[language]?.[element.dataset.i18n] || accountTranslations[language]?.[element.dataset.i18n];
       if (value) element.innerHTML = value;
     });
     $$("[data-i18n-placeholder]").forEach(element => {
-      const value = translations[language]?.[element.dataset.i18nPlaceholder];
+      const value = translations[language]?.[element.dataset.i18nPlaceholder] || accountTranslations[language]?.[element.dataset.i18nPlaceholder];
       if (value) element.placeholder = value;
     });
+    $("#language-switch").textContent = language === "tr" ? "EN" : "TR";
+    $("#profile-language").value = language;
     if (language === "en") setLanguage("en");
     initMap(); loadMarineData();
+    window.setInterval(() => {
+      if (document.visibilityState === "visible" && Date.now() - lastMarineRefreshAt >= 60 * 60 * 1000) loadMarineData();
+    }, 60 * 1000);
     if (config.supabaseUrl && config.supabaseAnonKey && currentSession()) loadCloudLibrary();
-    window.addEventListener("online", () => { if (!liveData) loadMarineData(); });
+    window.addEventListener("online", () => { if (!liveData || Date.now() - lastMarineRefreshAt >= 60 * 60 * 1000) loadMarineData(); });
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible" && Date.now() - lastMarineRefreshAt >= 60 * 60 * 1000) loadMarineData();
+    });
   }
   init();
 })();

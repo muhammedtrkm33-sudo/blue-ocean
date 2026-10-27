@@ -940,6 +940,154 @@ body {
   font-size: 15px;
 }
 
+.account-dialog.profile-drawer[open] {
+  position: fixed;
+  inset: 0 0 0 auto;
+  width: min(460px, 94vw);
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  border-radius: 0;
+  animation: profile-drawer-in 0.28s ease-out both;
+}
+
+.account-dialog.profile-drawer::backdrop {
+  background: rgb(13 37 52 / 48%);
+}
+
+@keyframes profile-drawer-in {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.profile-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 24px 0 4px;
+  padding: 18px;
+  border: 1px solid #dce5ea;
+  background: #f4f7f9;
+}
+
+.profile-avatar-picker {
+  position: relative;
+  flex: 0 0 66px;
+  width: 66px;
+  height: 66px;
+  cursor: pointer;
+}
+
+.profile-avatar {
+  display: grid;
+  width: 66px;
+  height: 66px;
+  place-items: center;
+  border: 1px solid #9bc8d3;
+  border-radius: 50%;
+  background: #dff0f3;
+  color: #087da0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.profile-avatar-image {
+  display: block;
+}
+
+#profile-avatar-image:not([hidden]) {
+  position: absolute;
+  inset: 0;
+  width: 66px;
+  height: 66px;
+  border: 1px solid #9bc8d3;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-avatar-picker > span {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  display: grid;
+  width: 23px;
+  height: 23px;
+  place-items: center;
+  border: 1px solid #fff;
+  border-radius: 50%;
+  background: #087da0;
+  color: #fff;
+  font-size: 16px;
+}
+
+.profile-avatar-file {
+  position: absolute;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.profile-identity {
+  min-width: 0;
+}
+
+.profile-identity h2 {
+  overflow-wrap: anywhere;
+  margin: 0;
+  font-size: 21px;
+}
+
+.profile-identity p,
+.profile-photo-note {
+  margin: 5px 0 0;
+  color: #617987;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.profile-visit-link {
+  display: flex;
+  justify-content: space-between;
+  margin: 14px 0 22px;
+  padding: 14px 16px;
+  border: 1px solid #cddfe7;
+  background: #f4f7f9;
+  color: #087da0;
+  font-weight: 700;
+}
+
+.profile-settings {
+  display: grid;
+  gap: 10px;
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid #dce5ea;
+}
+
+.profile-settings h3 {
+  margin: 0;
+  color: #17384c;
+  font-size: 16px;
+}
+
+.profile-settings .profile-language {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #d5e1e7;
+  background: #fff;
+  color: #17384c;
+  font: inherit;
+}
+
+.account-forgot {
+  margin-top: 14px;
+}
+
+.account-content select {
+  font: inherit;
+}
+
 .verification-hint {
   display: block;
   margin-top: -7px;
